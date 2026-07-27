@@ -32,10 +32,17 @@ const avatar = fs.readFileSync(avatarPath)
 const requiredHtml = [
   '<!doctype html>',
   'lang="zh-CN"',
-  'Gu JiaMing',
-  'AtomsH4',
+  '<h1 id="hero-title">AtomsH4</h1>',
+  'What I cannot create, I do not understand.',
   'KEEP CODING',
   'KEEP PLAYING',
+  'PLAYER DATA',
+  'PROGRAMMER',
+  'LV. ???',
+  'aria-valuenow="72"',
+  '72%',
+  'STATUS: CODING',
+  'HP ▰▰▰▰▰',
   'id="quests"',
   'id="skills"',
   'id="projects"',
@@ -48,9 +55,24 @@ const requiredHtml = [
   'https://github.com/AtomsH4/text-classification-cnn-rnn'
 ]
 
+const forbiddenHtml = [
+  'Gu JiaMing',
+  'hero-subtitle',
+  'hero-description',
+  'status-window',
+  'status-grid',
+  'float-chip'
+]
+
 for (const fragment of requiredHtml) {
   if (!html.includes(fragment)) {
     fail(`index.html should include ${fragment}`)
+  }
+}
+
+for (const fragment of forbiddenHtml) {
+  if (html.includes(fragment)) {
+    fail(`index.html should not include ${fragment}`)
   }
 }
 
@@ -63,7 +85,13 @@ for (const fragment of [
   '--pink',
   '--cyan',
   '.hero',
-  '.avatar-card',
+  '.typewriter-quote',
+  '.player-card',
+  '.player-data',
+  '.xp-track',
+  '.portrait-frame',
+  'overflow: hidden',
+  'image-rendering: pixelated',
   '@media (max-width: 860px)'
 ]) {
   if (!css.includes(fragment)) {

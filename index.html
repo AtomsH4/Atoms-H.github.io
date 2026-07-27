@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       name="description"
-      content="Gu JiaMing / AtomsH4 的像素风个人主页，展示 AI、Web、Agents、全栈开发和产品设计经历。"
+      content="AtomsH4 的像素风个人主页，展示 AI、Web、Agents、全栈开发和产品设计经历。"
     >
     <title>AtomsH4 | Pixel Portfolio</title>
     <link rel="stylesheet" href="styles.css">
@@ -32,11 +32,8 @@
             <span class="pixel-badge"><span class="status-dot status-dot-cyan"></span>KEEP PLAYING</span>
           </div>
 
-          <h1 id="hero-title">Gu JiaMing <span>AtomsH4</span></h1>
-          <p class="hero-subtitle">AI、Web、Agents 与产品设计交汇处的 full-stack developer。</p>
-          <p class="hero-description">
-            把工程能力做成可玩的体验：从智能应用、前端工具到内容型项目，用像素世界的方式展示真实经历和持续学习轨迹。
-          </p>
+          <h1 id="hero-title">AtomsH4</h1>
+          <p class="typewriter-quote">What I cannot create, I do not understand.</p>
 
           <div class="hero-actions" aria-label="Primary links">
             <a class="pixel-button pixel-button-primary" href="#projects">Start Quest</a>
@@ -44,47 +41,50 @@
           </div>
         </div>
 
-        <aside class="avatar-card" aria-label="Pixel profile card">
-          <div class="status-window">
-            <div class="window-bar">
-              <span></span>
-              <span></span>
-              <span></span>
-              Player Status
+        <aside class="player-card" aria-label="Pixel player data">
+          <div class="player-title"><span aria-hidden="true">◆</span>PLAYER DATA</div>
+
+          <div class="player-data">
+            <div class="player-class">
+              <span class="class-icon" aria-hidden="true">&gt;_</span>
+              <span><small>CLASS</small>PROGRAMMER</span>
             </div>
-            <dl class="status-grid">
-              <div>
-                <dt>Playing</dt>
-                <dd>AI &amp; Web</dd>
-              </div>
-              <div>
-                <dt>Learning</dt>
-                <dd>Full-stack / Agents</dd>
-              </div>
-              <div>
-                <dt>Mode</dt>
-                <dd>Product Design</dd>
-              </div>
-              <div>
-                <dt>Style</dt>
-                <dd>Retro Pixel ACG</dd>
-              </div>
-            </dl>
+            <span class="player-level">LV. ???</span>
+
+            <div class="xp-row">
+              <span>EXP</span>
+              <span
+                class="xp-track"
+                role="progressbar"
+                aria-label="Experience"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="72"
+              >
+                <span class="xp-fill"></span>
+              </span>
+              <span>72%</span>
+            </div>
           </div>
 
-          <div class="avatar-stage">
-            <img
-              class="pixel-avatar"
-              src="assets/avatar-pixel.png"
-              alt="原创粉发像素角色头像"
-              width="320"
-              height="320"
-            >
+          <div class="portrait-stage">
+            <span class="frame-corner frame-corner-top" aria-hidden="true"></span>
+            <div class="portrait-frame">
+              <img
+                class="pixel-avatar"
+                src="assets/avatar-pixel.png"
+                alt="原创粉发像素角色头像"
+                width="150"
+                height="148"
+              >
+            </div>
+            <span class="frame-corner frame-corner-bottom" aria-hidden="true"></span>
           </div>
 
-          <span class="float-chip chip-agent">AI Agent +12</span>
-          <span class="float-chip chip-figma">Figma +8</span>
-          <span class="float-chip chip-stack">TS / React</span>
+          <div class="player-footer">
+            <span>STATUS: CODING</span>
+            <span>HP ▰▰▰▰▰</span>
+          </div>
         </aside>
       </section>
 

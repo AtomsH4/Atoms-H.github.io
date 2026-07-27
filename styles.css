@@ -147,33 +147,23 @@ a {
 
 h1 {
   margin: 0;
-  font-size: clamp(42px, 7.6vw, 92px);
+  color: var(--pink);
+  font-size: clamp(48px, 7.6vw, 92px);
   font-weight: 950;
   line-height: 0.92;
-  letter-spacing: 0;
+  letter-spacing: -0.04em;
   text-wrap: balance;
 }
 
-h1 span {
-  display: block;
-  color: var(--pink);
-}
-
-.hero-subtitle {
-  max-width: 720px;
-  margin: 0;
-  color: #2c3445;
-  font-size: clamp(18px, 2.1vw, 26px);
-  font-weight: 720;
-  line-height: 1.36;
-}
-
-.hero-description {
+.typewriter-quote {
+  min-height: 4.3em;
   max-width: 660px;
   margin: 0;
-  color: var(--muted);
-  font-size: 16px;
-  line-height: 1.72;
+  color: #353040;
+  font-family: "Courier New", Courier, monospace;
+  font-size: clamp(19px, 2.25vw, 27px);
+  font-weight: 800;
+  line-height: 1.48;
 }
 
 .hero-actions {
@@ -213,130 +203,160 @@ h1 span {
   background: var(--cyan);
 }
 
-.avatar-card {
-  position: relative;
-  min-height: 560px;
+.player-card {
   overflow: hidden;
   border: 4px solid var(--line);
-  background: linear-gradient(180deg, #fff 0%, #fff7fb 50%, #edfaff 100%);
+  background: var(--panel);
   box-shadow: 10px 10px 0 rgba(29, 36, 51, 0.16);
 }
 
-.avatar-card::before {
-  content: "";
-  position: absolute;
-  inset: 18px;
-  border: 2px dashed rgba(29, 36, 51, 0.2);
-  pointer-events: none;
-}
-
-.status-window {
-  position: absolute;
-  top: 22px;
-  right: 22px;
-  left: 22px;
-  z-index: 2;
-  border: 3px solid var(--line);
-  background: var(--panel);
-  box-shadow: 6px 6px 0 rgba(29, 36, 51, 0.14);
-}
-
-.window-bar {
+.player-title {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 10px;
-  border-bottom: 3px solid var(--line);
-  background: #1d2433;
+  gap: 8px;
+  padding: 9px 12px;
+  border-bottom: 4px solid var(--line);
+  background: var(--line);
   color: #fff;
   font-family: var(--mono);
   font-size: 12px;
   font-weight: 900;
-  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
-.window-bar span {
-  width: 10px;
-  height: 10px;
-  border: 2px solid #fff;
-  background: var(--pink);
+.player-title span {
+  color: var(--pink);
 }
 
-.window-bar span:nth-child(2) {
-  background: var(--yellow);
-}
-
-.window-bar span:nth-child(3) {
-  background: var(--cyan);
-}
-
-.status-grid {
+.player-data {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin: 0;
-  padding: 12px;
-}
-
-.status-grid div {
-  padding: 10px;
-  border: 2px solid var(--line);
-  background: #f8fbff;
-}
-
-.status-grid dt {
-  font-size: 13px;
-  font-weight: 900;
-}
-
-.status-grid dd {
-  margin: 2px 0 0;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.avatar-stage {
-  position: absolute;
-  inset: 152px 32px 74px;
-  display: grid;
-  place-items: center;
-}
-
-.pixel-avatar {
-  width: min(76%, 320px);
-  height: auto;
-  image-rendering: pixelated;
-  filter: drop-shadow(12px 12px 0 rgba(29, 36, 51, 0.13));
-}
-
-.float-chip {
-  position: absolute;
-  z-index: 3;
-  padding: 8px 10px;
-  border: 3px solid var(--line);
-  background: #fff;
-  box-shadow: 4px 4px 0 rgba(29, 36, 51, 0.15);
+  grid-template-columns: 1fr auto;
+  gap: 12px 18px;
+  padding: 14px;
+  border-bottom: 4px solid var(--line);
+  background: #fffafd;
   font-family: var(--mono);
   font-size: 12px;
   font-weight: 900;
-  text-transform: uppercase;
 }
 
-.chip-agent {
-  bottom: 112px;
-  left: 18px;
+.player-class {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.player-class small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.class-icon {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 3px solid var(--line);
+  background: var(--cyan);
+}
+
+.player-level {
+  display: grid;
+  place-items: center;
+  padding: 0 9px;
+  border: 3px solid var(--line);
   background: var(--yellow);
 }
 
-.chip-figma {
-  right: 20px;
-  bottom: 72px;
-  background: var(--mint);
+.xp-row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: center;
 }
 
-.chip-stack {
-  bottom: 28px;
-  left: 58px;
+.xp-track {
+  height: 18px;
+  padding: 2px;
+  border: 3px solid var(--line);
+  background: #f2edf4;
+}
+
+.xp-fill {
+  display: block;
+  width: 72%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--pink) 0 10px,
+    #ffb7cf 10px 14px
+  );
+}
+
+.portrait-stage {
+  position: relative;
+  display: grid;
+  min-height: 330px;
+  place-items: center;
+  overflow: hidden;
+  background:
+    linear-gradient(rgba(29, 36, 51, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(29, 36, 51, 0.06) 1px, transparent 1px),
+    linear-gradient(180deg, #fff 0%, #fff0f6 100%);
+  background-size: 18px 18px, 18px 18px, auto;
+}
+
+.portrait-frame {
+  display: grid;
+  width: min(68%, 250px);
+  aspect-ratio: 1;
+  place-items: center;
+  overflow: hidden;
+  border: 4px solid var(--line);
+  background: #fff;
+  box-shadow: 10px 10px 0 rgba(29, 36, 51, 0.14);
+}
+
+.pixel-avatar {
+  width: 132%;
+  max-width: none;
+  height: auto;
+  image-rendering: pixelated;
+  transform: translate(3%, 1%);
+}
+
+.frame-corner {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+}
+
+.frame-corner-top {
+  top: 20px;
+  left: 20px;
+  border-top: 4px solid var(--line);
+  border-left: 4px solid var(--line);
+}
+
+.frame-corner-bottom {
+  right: 20px;
+  bottom: 20px;
+  border-right: 4px solid var(--line);
+  border-bottom: 4px solid var(--line);
+}
+
+.player-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-top: 4px solid var(--line);
+  background: var(--mint);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 900;
 }
 
 .content-section {
@@ -580,8 +600,8 @@ h1 span {
     padding-top: 26px;
   }
 
-  .avatar-card {
-    min-height: 500px;
+  .player-card {
+    min-height: 0;
   }
 
   .quest-list,
@@ -607,29 +627,20 @@ h1 span {
     font-size: 13px;
   }
 
-  .avatar-card {
-    min-height: 430px;
+  .player-data {
+    gap: 10px;
+    padding: 10px;
   }
 
-  .status-window {
-    top: 12px;
-    right: 12px;
-    left: 12px;
+  .portrait-stage {
+    min-height: 280px;
   }
 
-  .status-grid {
-    grid-template-columns: 1fr 1fr;
+  .portrait-frame {
+    width: min(72%, 220px);
   }
 
-  .avatar-stage {
-    inset: 150px 18px 50px;
-  }
-
-  .pixel-avatar {
-    width: min(76%, 230px);
-  }
-
-  .float-chip {
-    display: none;
+  .player-footer {
+    font-size: 10px;
   }
 }
