@@ -32,7 +32,7 @@ const html = fs.readFileSync(indexPath, 'utf8')
 const css = fs.readFileSync(cssPath, 'utf8')
 const script = fs.readFileSync(scriptPath, 'utf8')
 const avatar = fs.readFileSync(avatarPath)
-const expectedTypewriterText = 'What I cannot create, I do not understand.'
+const expectedTypewriterText = 'Any sufficiently advanced technology is indistinguishable from magic.'
 
 const expectCssRule = (selector, requiredDeclarations) => {
   const ruleMarker = `${selector} {`
@@ -71,10 +71,10 @@ const requiredHtml = [
   'lang="zh-CN"',
   '<script src="script.js" defer></script>',
   '<h1 id="hero-title">AtomsH4</h1>',
-  'data-typewriter="What I cannot create, I do not understand."',
+  'data-typewriter="Any sufficiently advanced technology is indistinguishable from magic."',
   'class="typewriter-text"',
   'class="typewriter-cursor"',
-  'What I cannot create, I do not understand.',
+  'Any sufficiently advanced technology is indistinguishable from magic.',
   'KEEP CODING',
   'KEEP PLAYING',
   'PLAYER DATA',
@@ -206,7 +206,7 @@ expectCssRule('.portrait-frame', [
 expectCssRule('.pixel-avatar', [
   'width: 132%',
   'image-rendering: pixelated',
-  'transform: translate(3%, 1%)'
+  'transform: translate(-4.9%, -2.3%)'
 ])
 
 const reducedMotionCursorRule =
