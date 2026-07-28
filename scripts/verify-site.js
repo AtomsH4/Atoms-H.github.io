@@ -50,6 +50,20 @@ const expectCssRule = (selector, requiredDeclarations) => {
   }
 }
 
+const expectHtmlTagAttributes = (label, pattern, requiredAttributes) => {
+  const tag = html.match(pattern)?.[0]
+
+  if (!tag) {
+    fail(`index.html should include a ${label} tag`)
+  }
+
+  for (const attribute of requiredAttributes) {
+    if (!tag.includes(attribute)) {
+      fail(`${label} should include ${attribute}`)
+    }
+  }
+}
+
 const requiredHtml = [
   '<!doctype html>',
   'lang="zh-CN"',
@@ -100,6 +114,24 @@ for (const fragment of forbiddenHtml) {
     fail(`index.html should not include ${fragment}`)
   }
 }
+
+expectHtmlTagAttributes(
+  'p.typewriter-quote',
+  /<p\b[^>]*class="typewriter-quote"[^>]*>/,
+  ['aria-label="What I cannot create, I do not understand."']
+)
+
+expectHtmlTagAttributes(
+  'span.typewriter-text',
+  /<span\b[^>]*class="typewriter-text"[^>]*>/,
+  ['aria-hidden="true"']
+)
+
+expectHtmlTagAttributes(
+  'span.typewriter-cursor',
+  /<span\b[^>]*class="typewriter-cursor"[^>]*>/,
+  ['aria-hidden="true"']
+)
 
 const xpTrackTag = html.match(/<span\b[^>]*class="xp-track"[^>]*>/)?.[0]
 if (!xpTrackTag) {
@@ -153,9 +185,17 @@ expectCssRule('.pixel-avatar', [
   'transform: translate(3%, 1%)'
 ])
 
+const reducedMotionCursorRule =
+  /@media \(prefers-reduced-motion: reduce\) \{\s*html \{[^{}]*\}\s*\.typewriter-cursor \{[^{}]*animation: none;[^{}]*\}\s*\}/
+
+if (!reducedMotionCursorRule.test(css)) {
+  fail('reduced-motion .typewriter-cursor should include animation: none')
+}
+
 for (const fragment of [
   'typewriter.dataset.typewriter',
   "window.matchMedia('(prefers-reduced-motion: reduce)')",
+  'if (output && text && !reducedMotion.matches)',
   'window.setTimeout(tick, 70)',
   'window.setTimeout(tick, 1800)',
   'window.setTimeout(tick, 35)',
