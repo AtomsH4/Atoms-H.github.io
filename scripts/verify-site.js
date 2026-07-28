@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const vm = require('vm')
 
 const root = path.resolve(__dirname, '..')
 const indexPath = path.join(root, 'index.html')
@@ -31,6 +32,7 @@ const html = fs.readFileSync(indexPath, 'utf8')
 const css = fs.readFileSync(cssPath, 'utf8')
 const script = fs.readFileSync(scriptPath, 'utf8')
 const avatar = fs.readFileSync(avatarPath)
+const expectedTypewriterText = 'What I cannot create, I do not understand.'
 
 const expectCssRule = (selector, requiredDeclarations) => {
   const ruleMarker = `${selector} {`
@@ -50,8 +52,8 @@ const expectCssRule = (selector, requiredDeclarations) => {
   }
 }
 
-const expectHtmlTagAttributes = (label, pattern, requiredAttributes) => {
-  const tag = html.match(pattern)?.[0]
+const expectHtmlTagAttributes = (source, label, pattern, requiredAttributes) => {
+  const tag = source.match(pattern)?.[0]
 
   if (!tag) {
     fail(`index.html should include a ${label} tag`)
@@ -115,23 +117,45 @@ for (const fragment of forbiddenHtml) {
   }
 }
 
+const typewriterQuoteBlock = html.match(
+  /<p\b[^>]*class="typewriter-quote"[^>]*>[\s\S]*?<\/p>/
+)?.[0]
+
+if (!typewriterQuoteBlock) {
+  fail('index.html should include a complete p.typewriter-quote block')
+}
+
 expectHtmlTagAttributes(
+  typewriterQuoteBlock,
   'p.typewriter-quote',
   /<p\b[^>]*class="typewriter-quote"[^>]*>/,
-  ['aria-label="What I cannot create, I do not understand."']
+  [
+    `data-typewriter="${expectedTypewriterText}"`,
+    `aria-label="${expectedTypewriterText}"`
+  ]
 )
 
 expectHtmlTagAttributes(
+  typewriterQuoteBlock,
   'span.typewriter-text',
   /<span\b[^>]*class="typewriter-text"[^>]*>/,
   ['aria-hidden="true"']
 )
 
 expectHtmlTagAttributes(
+  typewriterQuoteBlock,
   'span.typewriter-cursor',
   /<span\b[^>]*class="typewriter-cursor"[^>]*>/,
   ['aria-hidden="true"']
 )
+
+const fallbackTypewriterText = typewriterQuoteBlock.match(
+  /<span\b[^>]*class="typewriter-text"[^>]*>([^<]*)<\/span>/
+)?.[1]
+
+if (fallbackTypewriterText !== expectedTypewriterText) {
+  fail(`span.typewriter-text should contain ${expectedTypewriterText}`)
+}
 
 const xpTrackTag = html.match(/<span\b[^>]*class="xp-track"[^>]*>/)?.[0]
 if (!xpTrackTag) {
@@ -204,6 +228,137 @@ for (const fragment of [
   if (!script.includes(fragment)) {
     fail(`script.js should include ${fragment}`)
   }
+}
+
+const executeTypewriter = ({
+  reducedMotion = false,
+  hasTypewriter = true,
+  hasOutput = true
+} = {}) => {
+  const output = { textContent: expectedTypewriterText }
+  const timers = []
+  const typewriter = {
+    dataset: { typewriter: expectedTypewriterText },
+    querySelector: (selector) => (
+      hasOutput && selector === '.typewriter-text' ? output : null
+    )
+  }
+  const document = {
+    querySelector: (selector) => (
+      hasTypewriter && selector === '[data-typewriter]' ? typewriter : null
+    )
+  }
+  const window = {
+    matchMedia: () => ({ matches: reducedMotion }),
+    setTimeout: (callback, delay) => {
+      timers.push({ callback, delay })
+    }
+  }
+
+  vm.runInNewContext(script, { document, window })
+
+  return { output, timers }
+}
+
+const reducedMotionTypewriter = executeTypewriter({ reducedMotion: true })
+if (reducedMotionTypewriter.output.textContent !== expectedTypewriterText) {
+  fail('reduced motion should preserve the complete fallback typewriter text')
+}
+if (reducedMotionTypewriter.timers.length !== 0) {
+  fail('reduced motion should not schedule typewriter timers')
+}
+
+for (const scenario of [
+  { label: 'missing typewriter', options: { hasTypewriter: false } },
+  { label: 'missing typewriter output', options: { hasOutput: false } }
+]) {
+  const result = executeTypewriter(scenario.options)
+  if (result.timers.length !== 0) {
+    fail(`${scenario.label} should not schedule typewriter timers`)
+  }
+}
+
+const animatedTypewriter = executeTypewriter()
+const visibleChanges = [{
+  text: animatedTypewriter.output.textContent,
+  time: 0
+}]
+let elapsed = 0
+let previousText = animatedTypewriter.output.textContent
+
+for (let step = 0; step < expectedTypewriterText.length * 3; step += 1) {
+  const timer = animatedTypewriter.timers.shift()
+  if (!timer) {
+    fail('typewriter animation should continue scheduling timers')
+  }
+
+  elapsed += timer.delay
+  timer.callback()
+
+  if (animatedTypewriter.output.textContent !== previousText) {
+    previousText = animatedTypewriter.output.textContent
+    visibleChanges.push({ text: previousText, time: elapsed })
+  }
+}
+
+const firstCharacter = expectedTypewriterText.slice(0, 1)
+const typingStart = visibleChanges.findIndex(({ text }) => text === firstCharacter)
+if (typingStart === -1) {
+  fail('typewriter should render its first visible character')
+}
+
+for (let length = 1; length <= expectedTypewriterText.length; length += 1) {
+  const change = visibleChanges[typingStart + length - 1]
+  const expectedText = expectedTypewriterText.slice(0, length)
+
+  if (!change || change.text !== expectedText) {
+    fail(`typewriter should render ${length} characters during typing`)
+  }
+
+  if (length > 1) {
+    const previousChange = visibleChanges[typingStart + length - 2]
+    if (change.time - previousChange.time !== 70) {
+      fail('typewriter input changes should be 70ms apart')
+    }
+  }
+}
+
+const fullTextChange = typingStart + expectedTypewriterText.length - 1
+const timingFailures = []
+
+for (let length = expectedTypewriterText.length - 1; length >= 0; length -= 1) {
+  const changeIndex = fullTextChange + expectedTypewriterText.length - length
+  const change = visibleChanges[changeIndex]
+  const previousChange = visibleChanges[changeIndex - 1]
+  const expectedText = expectedTypewriterText.slice(0, length)
+  const expectedDelay = length === expectedTypewriterText.length - 1 ? 1800 : 35
+
+  if (!change || change.text !== expectedText) {
+    fail(`typewriter should render ${length} characters during deletion`)
+  }
+
+  const actualDelay = change.time - previousChange.time
+  if (actualDelay !== expectedDelay) {
+    timingFailures.push(
+      `${previousChange.text.length}->${length} characters expected ${expectedDelay}ms, received ${actualDelay}ms`
+    )
+  }
+}
+
+const emptyTextChange = fullTextChange + expectedTypewriterText.length
+const nextFirstCharacter = visibleChanges[emptyTextChange + 1]
+
+if (!nextFirstCharacter || nextFirstCharacter.text !== firstCharacter) {
+  fail('typewriter should restart with its first character after deletion')
+}
+
+const restartDelay = nextFirstCharacter.time - visibleChanges[emptyTextChange].time
+if (restartDelay !== 450) {
+  timingFailures.push(`0->1 characters expected 450ms, received ${restartDelay}ms`)
+}
+
+if (timingFailures.length > 0) {
+  fail(`typewriter visible timing mismatch: ${timingFailures.join('; ')}`)
 }
 
 const pngSignature = avatar.subarray(0, 8).toString('hex')

@@ -12,28 +12,30 @@ if (typewriter) {
     output.textContent = ''
 
     const tick = () => {
-      output.textContent = text.slice(0, index)
-
-      if (!deleting && index < text.length) {
+      if (!deleting) {
         index += 1
+        output.textContent = text.slice(0, index)
+
+        if (index === text.length) {
+          deleting = true
+          window.setTimeout(tick, 1800)
+          return
+        }
+
         window.setTimeout(tick, 70)
         return
       }
 
-      if (!deleting) {
-        deleting = true
-        window.setTimeout(tick, 1800)
+      index -= 1
+      output.textContent = text.slice(0, index)
+
+      if (index === 0) {
+        deleting = false
+        window.setTimeout(tick, 450)
         return
       }
 
-      if (index > 0) {
-        index -= 1
-        window.setTimeout(tick, 35)
-        return
-      }
-
-      deleting = false
-      window.setTimeout(tick, 450)
+      window.setTimeout(tick, 35)
     }
 
     tick()
