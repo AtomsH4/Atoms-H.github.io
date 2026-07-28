@@ -29,6 +29,24 @@ const html = fs.readFileSync(indexPath, 'utf8')
 const css = fs.readFileSync(cssPath, 'utf8')
 const avatar = fs.readFileSync(avatarPath)
 
+const expectCssRule = (selector, requiredDeclarations) => {
+  const ruleMarker = `${selector} {`
+  const ruleStart = css.indexOf(ruleMarker)
+  const ruleEnd = css.indexOf('}', ruleStart)
+
+  if (ruleStart === -1 || ruleEnd === -1) {
+    fail(`styles.css should include a ${selector} rule`)
+  }
+
+  const rule = css.slice(ruleStart + ruleMarker.length, ruleEnd)
+
+  for (const declaration of requiredDeclarations) {
+    if (!rule.includes(declaration)) {
+      fail(`${selector} should include ${declaration}`)
+    }
+  }
+}
+
 const requiredHtml = [
   '<!doctype html>',
   'lang="zh-CN"',
@@ -76,6 +94,23 @@ for (const fragment of forbiddenHtml) {
   }
 }
 
+const xpTrackTag = html.match(/<span\b[^>]*class="xp-track"[^>]*>/)?.[0]
+if (!xpTrackTag) {
+  fail('index.html should include a span.xp-track tag')
+}
+
+for (const attribute of [
+  'role="progressbar"',
+  'aria-label="Experience"',
+  'aria-valuemin="0"',
+  'aria-valuemax="100"',
+  'aria-valuenow="72"'
+]) {
+  if (!xpTrackTag.includes(attribute)) {
+    fail(`span.xp-track should include ${attribute}`)
+  }
+}
+
 const projectCards = [...html.matchAll(/data-project="/g)]
 if (projectCards.length < 5) {
   fail(`expected at least 5 project cards, found ${projectCards.length}`)
@@ -98,6 +133,16 @@ for (const fragment of [
     fail(`styles.css should include ${fragment}`)
   }
 }
+
+expectCssRule('.portrait-frame', [
+  'overflow: hidden'
+])
+
+expectCssRule('.pixel-avatar', [
+  'width: 132%',
+  'image-rendering: pixelated',
+  'transform: translate(3%, 1%)'
+])
 
 const pngSignature = avatar.subarray(0, 8).toString('hex')
 if (pngSignature !== '89504e470d0a1a0a') {
