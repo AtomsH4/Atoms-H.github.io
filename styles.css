@@ -157,7 +157,7 @@ h1 {
 
 .typewriter-quote {
   min-height: 4.3em;
-  width: min(100%, 600px);
+  width: min(100%, 480px);
   margin: 0;
   color: #353040;
   font-family: "Courier New", Courier, monospace;
@@ -168,12 +168,23 @@ h1 {
 
 .typewriter-cursor {
   display: inline-block;
-  width: 0.7ch;
+  position: relative;
+  width: 0;
   height: 1.05em;
-  margin-left: 0.12em;
-  background: var(--pink);
+  margin-left: 0;
+  background: transparent;
   transform: translateY(0.16em);
   animation: cursor-blink 0.72s steps(1, end) infinite;
+}
+
+.typewriter-cursor::after {
+  position: absolute;
+  top: 0;
+  left: 0.12em;
+  width: 0.7ch;
+  height: 100%;
+  background: var(--pink);
+  content: "";
 }
 
 @keyframes cursor-blink {
@@ -340,7 +351,7 @@ h1 {
   max-width: none;
   height: auto;
   image-rendering: pixelated;
-  transform: translate(-8.5%, -10.5%);
+  transform: translate(-5%, -8%);
 }
 
 .frame-corner {

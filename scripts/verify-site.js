@@ -204,14 +204,30 @@ expectCssRule('.portrait-frame', [
 ])
 
 expectCssRule('.typewriter-quote', [
-  'width: min(100%, 600px)',
+  'width: min(100%, 480px)',
   'font-size: clamp(17px, 1.8vw, 22px)'
+])
+
+expectCssRule('.typewriter-cursor', [
+  'position: relative',
+  'width: 0',
+  'margin-left: 0',
+  'background: transparent'
+])
+
+expectCssRule('.typewriter-cursor::after', [
+  'content: ""',
+  'position: absolute',
+  'left: 0.12em',
+  'width: 0.7ch',
+  'height: 100%',
+  'background: var(--pink)'
 ])
 
 expectCssRule('.pixel-avatar', [
   'width: 120%',
   'image-rendering: pixelated',
-  'transform: translate(-8.5%, -10.5%)'
+  'transform: translate(-5%, -8%)'
 ])
 
 const reducedMotionCursorRule =
