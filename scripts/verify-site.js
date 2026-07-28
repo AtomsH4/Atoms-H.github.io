@@ -4,6 +4,7 @@ const path = require('path')
 const root = path.resolve(__dirname, '..')
 const indexPath = path.join(root, 'index.html')
 const cssPath = path.join(root, 'styles.css')
+const scriptPath = path.join(root, 'script.js')
 const avatarPath = path.join(root, 'assets', 'avatar-pixel.png')
 const cnamePath = path.join(root, 'CNAME')
 
@@ -19,6 +20,7 @@ const expectFile = (filePath, label) => {
 
 expectFile(indexPath, 'index.html')
 expectFile(cssPath, 'styles.css')
+expectFile(scriptPath, 'typewriter script')
 expectFile(avatarPath, 'pixel avatar')
 
 if (fs.existsSync(cnamePath)) {
@@ -27,6 +29,7 @@ if (fs.existsSync(cnamePath)) {
 
 const html = fs.readFileSync(indexPath, 'utf8')
 const css = fs.readFileSync(cssPath, 'utf8')
+const script = fs.readFileSync(scriptPath, 'utf8')
 const avatar = fs.readFileSync(avatarPath)
 
 const expectCssRule = (selector, requiredDeclarations) => {
@@ -50,7 +53,11 @@ const expectCssRule = (selector, requiredDeclarations) => {
 const requiredHtml = [
   '<!doctype html>',
   'lang="zh-CN"',
+  '<script src="script.js" defer></script>',
   '<h1 id="hero-title">AtomsH4</h1>',
+  'data-typewriter="What I cannot create, I do not understand."',
+  'class="typewriter-text"',
+  'class="typewriter-cursor"',
   'What I cannot create, I do not understand.',
   'KEEP CODING',
   'KEEP PLAYING',
@@ -121,13 +128,15 @@ for (const fragment of [
   '--cyan',
   '.hero',
   '.typewriter-quote',
+  '.typewriter-cursor',
   '.player-card',
   '.player-data',
   '.xp-track',
   '.portrait-frame',
   'overflow: hidden',
   'image-rendering: pixelated',
-  '@media (max-width: 860px)'
+  '@media (max-width: 860px)',
+  '@media (prefers-reduced-motion: reduce)'
 ]) {
   if (!css.includes(fragment)) {
     fail(`styles.css should include ${fragment}`)
@@ -143,6 +152,19 @@ expectCssRule('.pixel-avatar', [
   'image-rendering: pixelated',
   'transform: translate(3%, 1%)'
 ])
+
+for (const fragment of [
+  'typewriter.dataset.typewriter',
+  "window.matchMedia('(prefers-reduced-motion: reduce)')",
+  'window.setTimeout(tick, 70)',
+  'window.setTimeout(tick, 1800)',
+  'window.setTimeout(tick, 35)',
+  'window.setTimeout(tick, 450)'
+]) {
+  if (!script.includes(fragment)) {
+    fail(`script.js should include ${fragment}`)
+  }
+}
 
 const pngSignature = avatar.subarray(0, 8).toString('hex')
 if (pngSignature !== '89504e470d0a1a0a') {

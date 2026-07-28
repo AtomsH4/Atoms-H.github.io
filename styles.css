@@ -166,6 +166,22 @@ h1 {
   line-height: 1.48;
 }
 
+.typewriter-cursor {
+  display: inline-block;
+  width: 0.7ch;
+  height: 1.05em;
+  margin-left: 0.12em;
+  background: var(--pink);
+  transform: translateY(0.16em);
+  animation: cursor-blink 0.72s steps(1, end) infinite;
+}
+
+@keyframes cursor-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
@@ -642,5 +658,15 @@ h1 {
 
   .player-footer {
     font-size: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .typewriter-cursor {
+    animation: none;
   }
 }
