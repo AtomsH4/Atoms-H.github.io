@@ -69,6 +69,7 @@ const expectHtmlTagAttributes = (source, label, pattern, requiredAttributes) => 
 const requiredHtml = [
   '<!doctype html>',
   'lang="zh-CN"',
+  '<link rel="stylesheet" href="styles.css?v=a200d64">',
   '<script src="script.js" defer></script>',
   '<h1 id="hero-title">AtomsH4</h1>',
   'data-typewriter="Any sufficiently advanced technology is indistinguishable from magic."',
