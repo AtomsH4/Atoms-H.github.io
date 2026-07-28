@@ -203,10 +203,14 @@ expectCssRule('.portrait-frame', [
   'overflow: hidden'
 ])
 
+expectCssRule('.typewriter-quote', [
+  'font-size: clamp(17px, 1.8vw, 22px)'
+])
+
 expectCssRule('.pixel-avatar', [
-  'width: 132%',
+  'width: 120%',
   'image-rendering: pixelated',
-  'transform: translate(-4.9%, -2.3%)'
+  'transform: translate(-12.7%, -17.3%)'
 ])
 
 const reducedMotionCursorRule =

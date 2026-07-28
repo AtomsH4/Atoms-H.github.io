@@ -161,7 +161,7 @@ h1 {
   margin: 0;
   color: #353040;
   font-family: "Courier New", Courier, monospace;
-  font-size: clamp(19px, 2.25vw, 27px);
+  font-size: clamp(17px, 1.8vw, 22px);
   font-weight: 800;
   line-height: 1.48;
 }
@@ -336,11 +336,11 @@ h1 {
 }
 
 .pixel-avatar {
-  width: 132%;
+  width: 120%;
   max-width: none;
   height: auto;
   image-rendering: pixelated;
-  transform: translate(-4.9%, -2.3%);
+  transform: translate(-12.7%, -17.3%);
 }
 
 .frame-corner {
