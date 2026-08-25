@@ -169,6 +169,18 @@ if (projectCards.length < 5) {
 }
 
 for (const fragment of [
+  'class="contact-intro"',
+  'Available for thoughtful digital quests.',
+  '<span>GitHub</span><span>AtomsH4 ↗</span>',
+  '<span>Cnblogs</span><span>atomsh ↗</span>',
+  '<span>GitHub Pages</span><span>Visit ↗</span>'
+]) {
+  if (!html.includes(fragment)) {
+    fail(`index.html should include ${fragment}`)
+  }
+}
+
+for (const fragment of [
   '--glass-bg',
   '--glass-border',
   '--glass-shadow',
@@ -219,6 +231,32 @@ expectCssRule('.glass-pixel', [
 
 expectCssRule('.site-nav', [
   'backdrop-filter: blur(24px) saturate(135%)'
+])
+
+expectCssRule('.contact-section', [
+  'grid-template-columns: 1fr'
+])
+
+expectCssRule('.contact-intro', [
+  'display: flex',
+  'justify-content: space-between',
+  'background: transparent',
+  'box-shadow: none'
+])
+
+expectCssRule('.contact-links', [
+  'flex-wrap: wrap',
+  'background: transparent',
+  'box-shadow: none'
+])
+
+expectCssRule('.contact-links a', [
+  'border-radius: 999px',
+  'background: rgba(255, 255, 255, 0.5)'
+])
+
+expectCssRule('.contact-links a:hover,\n.contact-links a:focus-visible', [
+  'transform: translateY(-2px)'
 ])
 
 const reducedMotionCursorRule =

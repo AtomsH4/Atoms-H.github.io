@@ -4,7 +4,7 @@
 
 **目标：** 将 Contact 区域优化为单层横向玻璃页脚，并把右侧外链改为紧凑玻璃胶囊。
 
-**架构：** 保留 `section.contact-section` 作为唯一的大型玻璃表面，内部使用透明的 `.contact-intro` 和 `.contact-links` 两个布局单元。现有静态验证脚本先定义结构与样式契约，再修改 HTML/CSS 使其通过。
+**架构：** 保留 `section.contact-section` 作为唯一的大型玻璃表面，内部使用透明的 `.contact-intro` 顶部信息行和 `.contact-links` 底部链接行。现有静态验证脚本先定义结构与样式契约，再修改 HTML/CSS 使其通过。
 
 **技术栈：** 静态 HTML、CSS、Node.js 验证脚本、GitHub Pages
 
@@ -43,15 +43,18 @@ for (const fragment of [
 
 ```js
 expectCssRule('.contact-section', [
-  'grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr)'
+  'grid-template-columns: 1fr'
 ])
 
 expectCssRule('.contact-intro', [
+  'display: flex',
+  'justify-content: space-between',
   'background: transparent',
   'box-shadow: none'
 ])
 
 expectCssRule('.contact-links', [
+  'flex-wrap: wrap',
   'background: transparent',
   'box-shadow: none'
 ])
@@ -111,7 +114,7 @@ git commit -m "test: define single-layer contact footer contract"
 
 - [ ] **步骤 2：建立单层 CSS 布局**
 
-将 `.contact-section` 设为两列，内部 `.contact-intro` 与 `.contact-links` 清除背景、边框、阴影和滤镜。`.contact-intro` 内部使用纵向信息布局；`.contact-links` 使用横向可换行胶囊：
+将 `.contact-section` 设为单列，内部 `.contact-intro` 与 `.contact-links` 清除背景、边框、阴影和滤镜。`.contact-intro` 让左侧标题文案与右侧身份信息横向对齐；`.contact-links` 在下一行使用横向可换行胶囊：
 
 ```css
 .contact-intro,
