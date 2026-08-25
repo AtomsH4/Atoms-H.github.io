@@ -6,7 +6,6 @@ const root = path.resolve(__dirname, '..')
 const indexPath = path.join(root, 'index.html')
 const cssPath = path.join(root, 'styles.css')
 const scriptPath = path.join(root, 'script.js')
-const avatarPath = path.join(root, 'assets', 'avatar-pixel.png')
 const cnamePath = path.join(root, 'CNAME')
 
 const fail = (message) => {
@@ -22,7 +21,6 @@ const expectFile = (filePath, label) => {
 expectFile(indexPath, 'index.html')
 expectFile(cssPath, 'styles.css')
 expectFile(scriptPath, 'typewriter script')
-expectFile(avatarPath, 'pixel avatar')
 
 if (fs.existsSync(cnamePath)) {
   fail('CNAME should be removed so the project publishes under the GitHub Pages project URL')
@@ -31,7 +29,6 @@ if (fs.existsSync(cnamePath)) {
 const html = fs.readFileSync(indexPath, 'utf8')
 const css = fs.readFileSync(cssPath, 'utf8')
 const script = fs.readFileSync(scriptPath, 'utf8')
-const avatar = fs.readFileSync(avatarPath)
 const expectedTypewriterText = 'Any sufficiently advanced technology is indistinguishable from magic.'
 
 const expectCssRule = (selector, requiredDeclarations) => {
@@ -69,27 +66,19 @@ const expectHtmlTagAttributes = (source, label, pattern, requiredAttributes) => 
 const requiredHtml = [
   '<!doctype html>',
   'lang="zh-CN"',
-  '<link rel="stylesheet" href="styles.css?v=a200d64">',
+  '<link rel="stylesheet" href="styles.css?v=glass-v1">',
   '<script src="script.js" defer></script>',
   '<h1 id="hero-title">AtomsH4</h1>',
   'data-typewriter="Any sufficiently advanced technology is indistinguishable from magic."',
   'class="typewriter-text"',
   'class="typewriter-cursor"',
   'Any sufficiently advanced technology is indistinguishable from magic.',
-  'KEEP CODING',
-  'KEEP PLAYING',
-  'PLAYER DATA',
-  'PROGRAMMER',
-  'LV. ???',
-  'aria-valuenow="72"',
-  '72%',
-  'STATUS: CODING',
-  'HP ▰▰▰▰▰',
+  'class="glass-pixel-matrix"',
+  'class="glass-pixel"',
   'id="quests"',
   'id="skills"',
   'id="projects"',
   'id="contact"',
-  'assets/avatar-pixel.png',
   'https://github.com/AtomsH4',
   'https://www.cnblogs.com/atomsh',
   'https://github.com/AtomsH4/frontend-tools',
@@ -99,11 +88,14 @@ const requiredHtml = [
 
 const forbiddenHtml = [
   'Gu JiaMing',
-  'hero-subtitle',
-  'hero-description',
-  'status-window',
-  'status-grid',
-  'float-chip'
+  'PLAYER DATA',
+  'PROGRAMMER',
+  'LV. ???',
+  'aria-label="Experience"',
+  'STATUS: CODING',
+  'assets/avatar-pixel.png',
+  'class="player-card"',
+  'class="pixel-avatar"'
 ]
 
 for (const fragment of requiredHtml) {
@@ -158,21 +150,17 @@ if (fallbackTypewriterText !== expectedTypewriterText) {
   fail(`span.typewriter-text should contain ${expectedTypewriterText}`)
 }
 
-const xpTrackTag = html.match(/<span\b[^>]*class="xp-track"[^>]*>/)?.[0]
-if (!xpTrackTag) {
-  fail('index.html should include a span.xp-track tag')
+const glassMatrixTag = html.match(
+  /<div\b[^>]*class="glass-pixel-matrix"[^>]*>/
+)?.[0]
+
+if (!glassMatrixTag?.includes('aria-hidden="true"')) {
+  fail('glass pixel matrix should be hidden from assistive technology')
 }
 
-for (const attribute of [
-  'role="progressbar"',
-  'aria-label="Experience"',
-  'aria-valuemin="0"',
-  'aria-valuemax="100"',
-  'aria-valuenow="72"'
-]) {
-  if (!xpTrackTag.includes(attribute)) {
-    fail(`span.xp-track should include ${attribute}`)
-  }
+const glassPixels = [...html.matchAll(/class="glass-pixel"/g)]
+if (glassPixels.length !== 20) {
+  fail(`expected 20 glass pixels, found ${glassPixels.length}`)
 }
 
 const projectCards = [...html.matchAll(/data-project="/g)]
@@ -181,18 +169,17 @@ if (projectCards.length < 5) {
 }
 
 for (const fragment of [
-  '--pink',
-  '--cyan',
+  '--glass-bg',
+  '--glass-border',
+  '--glass-shadow',
   '.hero',
   '.typewriter-quote',
   '.typewriter-cursor',
-  '.player-card',
-  '.player-data',
-  '.xp-track',
-  '.portrait-frame',
-  'overflow: hidden',
-  'image-rendering: pixelated',
+  '.glass-pixel-matrix',
+  '.glass-pixel',
+  '@supports not ((backdrop-filter: blur(1px))',
   '@media (max-width: 860px)',
+  '@media (max-width: 520px)',
   '@media (prefers-reduced-motion: reduce)'
 ]) {
   if (!css.includes(fragment)) {
@@ -200,13 +187,9 @@ for (const fragment of [
   }
 }
 
-expectCssRule('.portrait-frame', [
-  'overflow: hidden'
-])
-
 expectCssRule('.typewriter-quote', [
   'width: min(100%, 480px)',
-  'font-size: clamp(17px, 1.8vw, 22px)'
+  'min-height: 4.3em'
 ])
 
 expectCssRule('.typewriter-cursor', [
@@ -222,13 +205,20 @@ expectCssRule('.typewriter-cursor::after', [
   'left: 0.12em',
   'width: 0.7ch',
   'height: 100%',
-  'background: var(--pink)'
+  'background: var(--accent)'
 ])
 
-expectCssRule('.pixel-avatar', [
-  'width: 120%',
-  'image-rendering: pixelated',
-  'transform: translate(-5%, -8%)'
+expectCssRule('.glass-pixel-matrix', [
+  'grid-template-columns: repeat(5, 1fr)'
+])
+
+expectCssRule('.glass-pixel', [
+  'backdrop-filter: blur(18px) saturate(145%)',
+  'border-radius: 18px'
+])
+
+expectCssRule('.site-nav', [
+  'backdrop-filter: blur(24px) saturate(135%)'
 ])
 
 const reducedMotionCursorRule =
@@ -381,11 +371,6 @@ if (restartDelay !== 450) {
 
 if (timingFailures.length > 0) {
   fail(`typewriter visible timing mismatch: ${timingFailures.join('; ')}`)
-}
-
-const pngSignature = avatar.subarray(0, 8).toString('hex')
-if (pngSignature !== '89504e470d0a1a0a') {
-  fail('assets/avatar-pixel.png is not a PNG file')
 }
 
 console.log('Site verification passed')
