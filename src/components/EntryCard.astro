@@ -15,19 +15,17 @@ const formattedPubDate = new Intl.DateTimeFormat('zh-CN', {
   month: 'long',
   day: 'numeric',
 }).format(pubDate);
+const titleLinksToRepository = href === repository;
 ---
 
 <article class="entry-card glass-surface">
   {kind && <p class="entry-kind">{kind}</p>}
   <h2>
-    <a
-      href={href}
-      target={repository ? '_blank' : undefined}
-      rel={repository ? 'noreferrer' : undefined}
-      aria-label={repository ? `${title} 仓库（在新标签页打开）` : undefined}
-    >
-      {title}
-    </a>
+    {titleLinksToRepository ? (
+      title
+    ) : (
+      <a href={href}>{title}</a>
+    )}
   </h2>
   <p>{summary}</p>
   <time datetime={pubDate.toISOString()}>{formattedPubDate}</time>

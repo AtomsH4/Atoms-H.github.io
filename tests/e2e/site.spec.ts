@@ -19,3 +19,18 @@ test('首页以博客与精选项目为主要入口', async ({ page }) => {
   await expect(page.getByRole('link', { name: /技能/i })).toHaveCount(0);
   await expect(page.getByRole('heading', { name: '精选项目', exact: true })).toBeVisible();
 });
+
+test('项目卡通过安全的新标签页仓库链接打开项目', async ({ page }) => {
+  await page.goto('/Atoms-H.github.io/projects/');
+
+  const card = page.locator('.entry-card').filter({ hasText: 'AtomsH4 Profile' });
+  const repositoryLink = card.locator('a.entry-repository');
+
+  await expect(repositoryLink).toHaveAttribute(
+    'href',
+    'https://github.com/AtomsH4/AtomsH4',
+  );
+  await expect(repositoryLink).toHaveAttribute('target', '_blank');
+  await expect(repositoryLink).toHaveAttribute('rel', /\bnoreferrer\b/);
+  await expect(card.locator('a[href^="/Atoms-H.github.io/projects/"]')).toHaveCount(0);
+});
