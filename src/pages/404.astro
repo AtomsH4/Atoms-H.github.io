@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { joinBasePath } from '../lib/site-path';
+
+const homeHref = joinBasePath(import.meta.env.BASE_URL, '/');
+---
+
+<BaseLayout title="页面未找到 | AtomsH4">
+  <section class="page-hero glass-surface">
+    <p>404</p>
+    <h1>页面未找到</h1>
+    <p>你访问的页面不存在，或已被移动。</p>
+    <a class="button button-primary" href={homeHref}>返回首页</a>
+  </section>
+</BaseLayout>
