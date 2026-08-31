@@ -1,11 +1,77 @@
-<!doctype html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>AtomsH4</title>
-  </head>
-  <body>
-    <h1>AtomsH4</h1>
-  </body>
-</html>
+---
+import { getCollection } from 'astro:content';
+import EntryList from '../components/EntryList.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getPublishedEntries } from '../lib/content';
+import { joinBasePath } from '../lib/site-path';
+
+const [blogEntries, noteEntries, projectEntries] = await Promise.all([
+  getCollection('blog'),
+  getCollection('notes'),
+  getCollection('projects'),
+]);
+const recentBlogEntries = getPublishedEntries(blogEntries).slice(0, 3);
+const recentNoteEntries = getPublishedEntries(noteEntries).slice(0, 3);
+const featuredProjects = getPublishedEntries(projectEntries).filter(
+  (entry) => entry.data.featured,
+);
+const basePath = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title="AtomsH4">
+  <section class="home-hero glass-surface" aria-labelledby="home-title">
+    <div class="prose">
+      <p class="eyebrow">个人博客与项目记录</p>
+      <h1 id="home-title">AtomsH4</h1>
+      <p>记录技术实践、零散思考，以及值得持续打磨的个人项目。</p>
+      <p class="home-quote">“任何足够先进的技术都与魔法无异。”</p>
+      <a class="button button-primary" href={joinBasePath(basePath, '/blog/')}>
+        浏览博客
+      </a>
+    </div>
+  </section>
+
+  <section class="content-section" aria-labelledby="recent-blog-title">
+    <div class="section-heading">
+      <p>Latest writing</p>
+      <h2 id="recent-blog-title">最近博客</h2>
+    </div>
+    <EntryList
+      entries={recentBlogEntries}
+      emptyMessage="博客正在整理中。"
+      collection="blog"
+    />
+  </section>
+
+  <section class="content-section" aria-labelledby="recent-notes-title">
+    <div class="section-heading">
+      <p>Notes</p>
+      <h2 id="recent-notes-title">最近随笔</h2>
+    </div>
+    <EntryList
+      entries={recentNoteEntries}
+      emptyMessage="随笔正在整理中。"
+      collection="notes"
+    />
+  </section>
+
+  <section class="content-section" aria-labelledby="featured-projects-title">
+    <div class="section-heading">
+      <p>Selected work</p>
+      <h2 id="featured-projects-title">精选项目</h2>
+    </div>
+    <EntryList
+      entries={featuredProjects}
+      emptyMessage="项目正在整理中。"
+      collection="projects"
+    />
+  </section>
+
+  <section class="about-entry glass-surface" aria-labelledby="about-entry-title">
+    <div class="prose">
+      <h2 id="about-entry-title">关于 AtomsH4</h2>
+      <p>从公开经历与项目线索，了解这条持续学习与实践的路径。</p>
+      <a href={joinBasePath(basePath, '/about/')}>查看经历</a>
+    </div>
+  </section>
+</BaseLayout>

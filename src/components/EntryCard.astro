@@ -5,9 +5,11 @@ type Props = {
   pubDate: Date;
   tags: string[];
   href: string;
+  kind?: 'own' | 'fork';
+  repository?: string;
 };
 
-const { title, summary, pubDate, tags, href } = Astro.props;
+const { title, summary, pubDate, tags, href, kind, repository } = Astro.props;
 const formattedPubDate = new Intl.DateTimeFormat('zh-CN', {
   year: 'numeric',
   month: 'long',
@@ -15,11 +17,32 @@ const formattedPubDate = new Intl.DateTimeFormat('zh-CN', {
 }).format(pubDate);
 ---
 
-<article class="entry-card">
-  <h2><a href={href}>{title}</a></h2>
+<article class="entry-card glass-surface">
+  {kind && <p class="entry-kind">{kind}</p>}
+  <h2>
+    <a
+      href={href}
+      target={repository ? '_blank' : undefined}
+      rel={repository ? 'noreferrer' : undefined}
+      aria-label={repository ? `${title} 仓库（在新标签页打开）` : undefined}
+    >
+      {title}
+    </a>
+  </h2>
   <p>{summary}</p>
   <time datetime={pubDate.toISOString()}>{formattedPubDate}</time>
   <ul aria-label="标签">
     {tags.map((tag) => <li>{tag}</li>)}
   </ul>
+  {repository && (
+    <a
+      class="entry-repository"
+      href={repository}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={`打开 ${title} 仓库（在新标签页打开）`}
+    >
+      打开仓库<span class="sr-only">（在新标签页打开）</span>
+    </a>
+  )}
 </article>
