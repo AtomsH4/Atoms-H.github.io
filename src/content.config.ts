@@ -8,7 +8,7 @@ const entrySchema = z.object({
   tags: z.array(z.string().min(1)).default([]),
   featured: z.boolean().default(false),
   draft: z.boolean().default(false),
-});
+}).strict();
 
 const collections = {
   blog: defineCollection({
