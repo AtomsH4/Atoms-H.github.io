@@ -1,0 +1,41 @@
+---
+import EmptyState from './EmptyState.astro';
+import EntryCard from './EntryCard.astro';
+import { joinBasePath } from '../lib/site-path';
+
+type Entry = {
+  id: string;
+  data: {
+    title: string;
+    summary: string;
+    pubDate: Date;
+    tags: string[];
+  };
+};
+
+type Props = {
+  entries: Entry[];
+  emptyMessage: string;
+  collection: string;
+};
+
+const { entries, emptyMessage, collection } = Astro.props;
+const getEntryHref = (entry: Entry) =>
+  joinBasePath(import.meta.env.BASE_URL, `/${collection}/${entry.id}/`);
+---
+
+{entries.length === 0 ? (
+  <EmptyState message={emptyMessage} />
+) : (
+  <div class="entry-grid">
+    {entries.map((entry) => (
+      <EntryCard
+        title={entry.data.title}
+        summary={entry.data.summary}
+        pubDate={entry.data.pubDate}
+        tags={entry.data.tags}
+        href={getEntryHref(entry)}
+      />
+    ))}
+  </div>
+)}

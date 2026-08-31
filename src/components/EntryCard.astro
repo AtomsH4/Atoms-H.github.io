@@ -1,0 +1,25 @@
+---
+type Props = {
+  title: string;
+  summary: string;
+  pubDate: Date;
+  tags: string[];
+  href: string;
+};
+
+const { title, summary, pubDate, tags, href } = Astro.props;
+const formattedPubDate = new Intl.DateTimeFormat('zh-CN', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+}).format(pubDate);
+---
+
+<article class="entry-card">
+  <h2><a href={href}>{title}</a></h2>
+  <p>{summary}</p>
+  <time datetime={pubDate.toISOString()}>{formattedPubDate}</time>
+  <ul aria-label="标签">
+    {tags.map((tag) => <li>{tag}</li>)}
+  </ul>
+</article>

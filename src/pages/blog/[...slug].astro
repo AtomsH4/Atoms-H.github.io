@@ -1,0 +1,29 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import PageHero from '../../components/PageHero.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPublishedEntries } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const entries = getPublishedEntries(await getCollection('blog'));
+
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props as { entry: CollectionEntry<'blog'> };
+const { Content } = await render(entry);
+---
+
+<BaseLayout title={`${entry.data.title} | AtomsH4`}>
+  <PageHero
+    eyebrow="Blog"
+    title={entry.data.title}
+    description={entry.data.summary}
+  />
+  <article class="prose">
+    <Content />
+  </article>
+</BaseLayout>
