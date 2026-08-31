@@ -1,0 +1,13 @@
+---
+import Navigation from './Navigation';
+import { joinBasePath } from '../lib/site-path';
+
+const basePath = import.meta.env.BASE_URL;
+const currentPath = Astro.url.pathname;
+const homeHref = joinBasePath(basePath, '/');
+---
+
+<header class="site-header container glass-surface">
+  <a class="site-brand" href={homeHref}>AtomsH4</a>
+  <Navigation client:load basePath={basePath} currentPath={currentPath} />
+</header>
