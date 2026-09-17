@@ -1,8 +1,14 @@
 .experience {
   position: relative;
+  overflow: clip;
   padding: clamp(1rem, 3vw, 2rem);
   color: #0b0b0b;
   background: #fff;
+}
+
+.experience:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
 }
 
 .toolbar {
@@ -38,7 +44,7 @@
 .metadata {
   position: relative;
   z-index: 2;
-  max-width: 24rem;
+  max-width: min(24rem, 100%);
   margin-top: clamp(2rem, 6vw, 4rem);
 }
 
@@ -110,8 +116,14 @@
 }
 
 .stage {
+  overflow: clip;
   min-height: clamp(28rem, 68vh, 50rem);
   margin-top: -8rem;
+  touch-action: pan-y;
+}
+
+.stage canvas {
+  touch-action: pan-y;
 }
 
 .fallbackList {

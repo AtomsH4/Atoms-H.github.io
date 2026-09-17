@@ -238,11 +238,13 @@ const ContextLossListener = ({ onFailure }: { onFailure: () => void }) => {
       onFailure();
     };
 
+    canvas.dataset.recommendationStageReady = 'true';
     canvas.addEventListener('webglcontextlost', handleContextLost, {
       once: true,
     });
 
     return () => {
+      delete canvas.dataset.recommendationStageReady;
       canvas.removeEventListener('webglcontextlost', handleContextLost);
     };
   }, [canvas, onFailure]);

@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type KeyboardEvent,
 } from 'react';
@@ -49,7 +50,7 @@ const useMediaQuery = (query: string) => {
 const isInteractiveArrowTarget = (target: EventTarget | null) =>
   target instanceof Element &&
   target.closest(
-    'a, input, textarea, select, [contenteditable]:not([contenteditable="false"])',
+    'a, button, input, textarea, select, [contenteditable]:not([contenteditable="false"])',
   ) !== null;
 
 const replaceLocationHash = (id: string) => {
@@ -76,6 +77,9 @@ export const RecommendationExperience = (
     items[0]?.id ?? null,
   );
   const [hashReady, setHashReady] = useState(mode !== 'catalog');
+  const [statusMessage, setStatusMessage] = useState('');
+  const statusReady = useRef(false);
+  const previousVisibleActiveId = useRef<string | null>(null);
 
   useEffect(() => {
     if (mode === 'catalog') {
@@ -137,9 +141,7 @@ export const RecommendationExperience = (
     const nextItems = filterRecommendationItems(items, nextFilter);
 
     setFilter(nextFilter);
-    if (!nextItems.some((item) => item.id === activeId)) {
-      setActiveId(nextItems[0]?.id ?? null);
-    }
+    setActiveId(nextItems[0]?.id ?? null);
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -163,24 +165,53 @@ export const RecommendationExperience = (
     }
   };
 
-  if (items.length === 0) {
-    return <p className={styles.emptyState}>推荐正在整理中。</p>;
-  }
-
   const activeItem =
     filteredItems.find((item) => item.id === activeId) ??
     filteredItems[0] ??
     null;
   const visibleActiveId = activeItem?.id ?? null;
 
+  useEffect(() => {
+    if ((mode === 'catalog' && !hashReady) || !activeItem) {
+      statusReady.current = false;
+      previousVisibleActiveId.current = null;
+      return;
+    }
+
+    if (!statusReady.current) {
+      statusReady.current = true;
+      previousVisibleActiveId.current = activeItem.id;
+      return;
+    }
+
+    if (previousVisibleActiveId.current !== activeItem.id) {
+      previousVisibleActiveId.current = activeItem.id;
+      setStatusMessage(`当前推荐：${activeItem.title}`);
+    }
+  }, [activeItem, hashReady, mode]);
+
+  if (items.length === 0) {
+    return <p className={styles.emptyState}>推荐正在整理中。</p>;
+  }
+
   return (
     <section
       className={styles.experience}
       aria-label="推荐浏览"
+      data-recommendation-experience=""
       data-reduced-motion={String(reducedMotion)}
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
+      <p
+        className="sr-only"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {statusMessage}
+      </p>
+
       {mode === 'catalog' ? (
         <div className={styles.toolbar} role="toolbar" aria-label="筛选推荐">
           <button
@@ -209,7 +240,7 @@ export const RecommendationExperience = (
 
       {activeItem ? (
         <>
-          <div className={styles.metadata} aria-live="polite">
+          <div className={styles.metadata}>
             <p className={styles.categoryLabel}>
               {recommendationCategoryConfig[activeItem.category].label}
             </p>
@@ -231,28 +262,30 @@ export const RecommendationExperience = (
             </dl>
             <p className={styles.summary}>{activeItem.summary}</p>
             <p className={styles.coverCredit}>
-              <span>封面署名：{activeItem.cover.credit}</span>
               {activeItem.cover.kind === 'licensed' ? (
                 <>
-                  {' · '}
+                  <span>封面来源与署名：</span>
                   <a
                     href={activeItem.cover.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    封面来源
+                    {activeItem.cover.credit}
+                    <span className="sr-only">（在新标签页打开）</span>
                   </a>
                   {' · '}
+                  <span>许可：</span>
                   <a
                     href={activeItem.cover.licenseUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     {activeItem.cover.license}
+                    <span className="sr-only">（在新标签页打开）</span>
                   </a>
                 </>
               ) : (
-                '（原创排版）'
+                <>原创排版：{activeItem.cover.credit}</>
               )}
             </p>
             <a
@@ -261,8 +294,15 @@ export const RecommendationExperience = (
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`查看 ${activeItem.title} 的外部详情`}
+              aria-describedby={`recommendation-external-hint-${activeItem.id}`}
             >
               查看作品详情
+              <span
+                id={`recommendation-external-hint-${activeItem.id}`}
+                className="sr-only"
+              >
+                （在新标签页打开）
+              </span>
             </a>
           </div>
 
@@ -287,7 +327,9 @@ export const RecommendationExperience = (
 
           {(status === 'unavailable' || status === 'failed') && (
             <p className={styles.fallbackNotice}>
-              当前设备使用二维推荐视图。
+              {status === 'failed'
+                ? '3D 初始化失败，当前使用二维推荐视图。'
+                : '当前设备使用二维推荐视图。'}
             </p>
           )}
         </>
