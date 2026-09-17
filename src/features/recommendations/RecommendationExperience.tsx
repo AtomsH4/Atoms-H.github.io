@@ -26,24 +26,24 @@ export type RecommendationExperienceProps =
   | { mode: 'catalog'; items: RecommendationItem[] }
   | { mode: 'featured'; items: RecommendationItem[]; allHref: string };
 
-const useReducedMotion = () => {
-  const [reducedMotion, setReducedMotion] = useState(false);
+const useMediaQuery = (query: string) => {
+  const [matches, setMatches] = useState(false);
 
   useEffect(() => {
     if (typeof window.matchMedia !== 'function') return;
 
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mediaQuery = window.matchMedia(query);
     const handleChange = (event: MediaQueryListEvent) => {
-      setReducedMotion(event.matches);
+      setMatches(event.matches);
     };
 
-    setReducedMotion(mediaQuery.matches);
+    setMatches(mediaQuery.matches);
     mediaQuery.addEventListener('change', handleChange);
 
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
+  }, [query]);
 
-  return reducedMotion;
+  return matches;
 };
 
 const isInteractiveArrowTarget = (target: EventTarget | null) =>
@@ -62,7 +62,11 @@ export const RecommendationExperience = (
 ) => {
   const { items, mode } = props;
   const { status, markFailed } = useWebGLAvailability();
-  const reducedMotion = useReducedMotion();
+  const compactViewport = useMediaQuery('(max-width: 760px)');
+  const reducedMotion = useMediaQuery(
+    '(prefers-reduced-motion: reduce)',
+  );
+  const compact = mode === 'featured' || compactViewport;
   const [filter, setFilter] = useState<RecommendationFilter>('all');
   const filteredItems = useMemo(
     () => filterRecommendationItems(items, filter),
@@ -173,6 +177,7 @@ export const RecommendationExperience = (
     <section
       className={styles.experience}
       aria-label="推荐浏览"
+      data-reduced-motion={String(reducedMotion)}
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
@@ -266,7 +271,7 @@ export const RecommendationExperience = (
               <RecommendationStage
                 items={filteredItems}
                 activeId={visibleActiveId}
-                compact={mode === 'featured'}
+                compact={compact}
                 reducedMotion={reducedMotion}
                 onSelect={selectItem}
                 onFailure={markFailed}
