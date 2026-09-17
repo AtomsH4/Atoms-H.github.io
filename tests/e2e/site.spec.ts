@@ -59,3 +59,36 @@ test('移动端导航可打开并显示导航链接', async ({ page }) => {
     navigation.getByRole('link', { name: '博客', exact: true }),
   ).toBeVisible();
 });
+
+test('推荐页提供分类、首批内容和安全外链', async ({ page }) => {
+  await page.goto('/Atoms-H.github.io/recommendations/');
+
+  await expect(
+    page.getByRole('heading', { name: '推荐', exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole('button', { name: '音乐' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '书籍' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '影视与动画' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: '我表示理解', level: 2 }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: /外部详情/ }),
+  ).toHaveAttribute('target', '_blank');
+  await expect(
+    page.getByRole('link', { name: /外部详情/ }),
+  ).toHaveAttribute('rel', /noreferrer/);
+});
+
+test('首页精选深链到对应推荐', async ({ page }) => {
+  await page.goto('/Atoms-H.github.io/');
+
+  await expect(
+    page.getByRole('link', { name: /查看全部推荐/ }),
+  ).toHaveAttribute('href', '/Atoms-H.github.io/recommendations/');
+
+  await page.goto('/Atoms-H.github.io/recommendations/#flipped');
+  await expect(
+    page.getByRole('heading', { name: '怦然心动' }),
+  ).toBeVisible();
+});

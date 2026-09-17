@@ -26,5 +26,9 @@ describe('Navigation', () => {
       'href',
       '/Atoms-H.github.io/notes/',
     );
+    expect(screen.getByRole('link', { name: '推荐' })).toHaveAttribute(
+      'href',
+      '/Atoms-H.github.io/recommendations/',
+    );
   });
 });

@@ -1,14 +1,20 @@
 ---
 import { getCollection } from 'astro:content';
 import EntryList from '../components/EntryList.astro';
+import HomeRecommendations from '../components/HomeRecommendations.astro';
+import {
+  getFeaturedRecommendations,
+  toRecommendationItem,
+} from '../features/recommendations/recommendation-content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getPublishedEntries } from '../lib/content';
 import { joinBasePath } from '../lib/site-path';
 
-const [blogEntries, noteEntries, projectEntries] = await Promise.all([
+const [blogEntries, noteEntries, projectEntries, recommendationEntries] = await Promise.all([
   getCollection('blog'),
   getCollection('notes'),
   getCollection('projects'),
+  getCollection('recommendations'),
 ]);
 const recentBlogEntries = getPublishedEntries(blogEntries).slice(0, 3);
 const recentNoteEntries = getPublishedEntries(noteEntries).slice(0, 3);
@@ -16,6 +22,10 @@ const featuredProjects = getPublishedEntries(projectEntries).filter(
   (entry) => entry.data.featured,
 );
 const basePath = import.meta.env.BASE_URL;
+const featuredRecommendations = getFeaturedRecommendations(
+  recommendationEntries,
+  3,
+).map((entry) => toRecommendationItem(entry, basePath));
 ---
 
 <BaseLayout title="AtomsH4">
@@ -66,6 +76,8 @@ const basePath = import.meta.env.BASE_URL;
       collection="projects"
     />
   </section>
+
+  <HomeRecommendations items={featuredRecommendations} />
 
   <section class="about-entry glass-surface" aria-labelledby="about-entry-title">
     <div class="prose">

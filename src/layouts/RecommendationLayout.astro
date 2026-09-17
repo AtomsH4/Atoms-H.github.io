@@ -1,0 +1,64 @@
+---
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import '../styles/global.css';
+
+type Props = {
+  title: string;
+};
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+  </head>
+  <body class="recommendation-theme">
+    <SiteHeader />
+    <main>
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>
+
+<style is:global>
+  .recommendation-theme {
+    --poster-paper: #f7f6f1;
+    --poster-ink: #090909;
+    --color-page: var(--poster-paper);
+    --color-text: var(--poster-ink);
+    --color-muted: #4a4a4a;
+    --color-accent: var(--poster-ink);
+    --color-accent-deep: var(--poster-ink);
+    --color-surface: transparent;
+    --color-surface-strong: #fff;
+    --color-border: rgb(0 0 0 / 18%);
+    --color-nav-active: rgb(0 0 0 / 7%);
+    color-scheme: light;
+    color: var(--poster-ink);
+    background: var(--poster-paper);
+  }
+
+  .recommendation-theme .site-header {
+    border-color: rgb(0 0 0 / 18%);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .recommendation-theme main {
+    width: min(100%, 96rem);
+    margin-top: 1.5rem;
+  }
+
+  .recommendation-theme .site-footer {
+    color: var(--poster-ink);
+  }
+</style>
