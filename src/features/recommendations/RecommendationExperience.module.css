@@ -1,0 +1,208 @@
+.experience {
+  position: relative;
+  padding: clamp(1rem, 3vw, 2rem);
+  color: #0b0b0b;
+  background: #fff;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.toolbar button,
+.navigation button {
+  padding: 0.35rem 0;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  color: inherit;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.toolbar button[aria-pressed='true'] {
+  border-color: currentColor;
+}
+
+.toolbar button:focus-visible,
+.navigation button:focus-visible,
+.fallbackButton:focus-visible,
+.allLink:focus-visible,
+.externalLink:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.metadata {
+  position: relative;
+  z-index: 2;
+  max-width: 24rem;
+  margin-top: clamp(2rem, 6vw, 4rem);
+}
+
+.categoryLabel {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.metadata h2 {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(2.25rem, 8vw, 5.5rem);
+  font-weight: 500;
+  letter-spacing: -0.06em;
+  line-height: 0.95;
+}
+
+.details {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+.details div {
+  display: grid;
+  grid-template-columns: minmax(6rem, auto) 1fr;
+  gap: 1rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid currentColor;
+}
+
+.details dt {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.details dd {
+  margin: 0;
+}
+
+.summary {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  line-height: 1.45;
+}
+
+.coverCredit {
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.coverCredit a,
+.externalLink,
+.allLink {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.externalLink {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-weight: 700;
+}
+
+.allLink {
+  float: right;
+}
+
+.stage {
+  min-height: clamp(28rem, 68vh, 50rem);
+  margin-top: -8rem;
+}
+
+.fallbackList {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 10rem 0 0;
+  list-style: none;
+}
+
+.fallbackButton {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 1px solid #0b0b0b;
+  background: #fff;
+  cursor: pointer;
+}
+
+.fallbackButton[aria-pressed='true'] {
+  box-shadow: 0 0 0 3px #fff, 0 0 0 5px #0b0b0b;
+}
+
+.generatedCover {
+  display: grid;
+  aspect-ratio: 1;
+  grid-template-rows: auto 1fr auto;
+  place-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  color: #fff;
+  background: #111;
+  text-align: left;
+}
+
+.generatedTitle {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.25rem, 3vw, 2.25rem);
+  line-height: 0.95;
+}
+
+.generatedCreator {
+  align-self: end;
+  font-size: 0.75rem;
+}
+
+.generatedYear {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+}
+
+.licensedCover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.fallbackNotice {
+  margin: 1rem 0 0;
+  font-size: 0.85rem;
+}
+
+.navigation {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  border-top: 1px solid currentColor;
+}
+
+.navigation button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.emptyState {
+  margin: 0;
+  padding: 2rem;
+  color: #0b0b0b;
+  background: #fff;
+}
+
+@media (max-width: 760px) {
+  .stage {
+    margin-top: 2rem;
+  }
+
+  .fallbackList {
+    grid-template-columns: 1fr;
+    padding-top: 0;
+  }
+}

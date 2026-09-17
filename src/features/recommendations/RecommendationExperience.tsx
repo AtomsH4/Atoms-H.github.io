@@ -1,0 +1,315 @@
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type KeyboardEvent,
+} from 'react';
+
+import { RecommendationFallback } from './RecommendationFallback';
+import styles from './RecommendationExperience.module.css';
+import { RecommendationStage } from './RecommendationStage';
+import {
+  filterRecommendationItems,
+  getAdjacentRecommendationId,
+  getInitialRecommendationId,
+  type RecommendationFilter,
+} from './recommendation-navigation';
+import {
+  recommendationCategoryConfig,
+  recommendationCategoryValues,
+  type RecommendationItem,
+} from './recommendation-types';
+import { useWebGLAvailability } from './useWebGLAvailability';
+
+export type RecommendationExperienceProps =
+  | { mode: 'catalog'; items: RecommendationItem[] }
+  | { mode: 'featured'; items: RecommendationItem[]; allHref: string };
+
+const useReducedMotion = () => {
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return;
+
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handleChange = (event: MediaQueryListEvent) => {
+      setReducedMotion(event.matches);
+    };
+
+    setReducedMotion(mediaQuery.matches);
+    mediaQuery.addEventListener('change', handleChange);
+
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  return reducedMotion;
+};
+
+const isInteractiveArrowTarget = (target: EventTarget | null) =>
+  target instanceof Element &&
+  target.closest(
+    'a, input, textarea, select, [contenteditable]:not([contenteditable="false"])',
+  ) !== null;
+
+const replaceLocationHash = (id: string) => {
+  const nextUrl = `${window.location.pathname}${window.location.search}#${encodeURIComponent(id)}`;
+  window.history.replaceState(window.history.state, '', nextUrl);
+};
+
+export const RecommendationExperience = (
+  props: RecommendationExperienceProps,
+) => {
+  const { items, mode } = props;
+  const { status, markFailed } = useWebGLAvailability();
+  const reducedMotion = useReducedMotion();
+  const [filter, setFilter] = useState<RecommendationFilter>('all');
+  const filteredItems = useMemo(
+    () => filterRecommendationItems(items, filter),
+    [filter, items],
+  );
+  const [activeId, setActiveId] = useState<string | null>(
+    items[0]?.id ?? null,
+  );
+  const [hashReady, setHashReady] = useState(mode !== 'catalog');
+
+  useEffect(() => {
+    if (mode === 'catalog') {
+      setHashReady(false);
+      setActiveId(getInitialRecommendationId(items, window.location.hash));
+      setHashReady(true);
+      return;
+    }
+
+    setHashReady(true);
+    setFilter('all');
+    setActiveId((currentId) =>
+      items.some((item) => item.id === currentId)
+        ? currentId
+        : (items[0]?.id ?? null),
+    );
+  }, [items, mode]);
+
+  useEffect(() => {
+    if (!filteredItems.some((item) => item.id === activeId)) {
+      setActiveId(filteredItems[0]?.id ?? null);
+    }
+  }, [activeId, filteredItems]);
+
+  useEffect(() => {
+    if (
+      mode === 'catalog' &&
+      hashReady &&
+      activeId &&
+      filteredItems.some((item) => item.id === activeId)
+    ) {
+      replaceLocationHash(activeId);
+    }
+  }, [activeId, filteredItems, hashReady, mode]);
+
+  const selectItem = useCallback(
+    (id: string) => {
+      if (filteredItems.some((item) => item.id === id)) {
+        setActiveId(id);
+      }
+    },
+    [filteredItems],
+  );
+
+  const selectAdjacent = useCallback(
+    (direction: -1 | 1) => {
+      const nextId = getAdjacentRecommendationId(
+        filteredItems,
+        activeId,
+        direction,
+      );
+
+      if (nextId) setActiveId(nextId);
+    },
+    [activeId, filteredItems],
+  );
+
+  const selectFilter = (nextFilter: RecommendationFilter) => {
+    const nextItems = filterRecommendationItems(items, nextFilter);
+
+    setFilter(nextFilter);
+    if (!nextItems.some((item) => item.id === activeId)) {
+      setActiveId(nextItems[0]?.id ?? null);
+    }
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (
+      (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') ||
+      isInteractiveArrowTarget(event.target)
+    ) {
+      return;
+    }
+
+    const direction = event.key === 'ArrowLeft' ? -1 : 1;
+    const nextId = getAdjacentRecommendationId(
+      filteredItems,
+      activeId,
+      direction,
+    );
+
+    if (nextId) {
+      event.preventDefault();
+      setActiveId(nextId);
+    }
+  };
+
+  if (items.length === 0) {
+    return <p className={styles.emptyState}>推荐正在整理中。</p>;
+  }
+
+  const activeItem =
+    filteredItems.find((item) => item.id === activeId) ??
+    filteredItems[0] ??
+    null;
+  const visibleActiveId = activeItem?.id ?? null;
+
+  return (
+    <section
+      className={styles.experience}
+      aria-label="推荐浏览"
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+    >
+      {mode === 'catalog' ? (
+        <div className={styles.toolbar} role="toolbar" aria-label="筛选推荐">
+          <button
+            type="button"
+            aria-pressed={filter === 'all'}
+            onClick={() => selectFilter('all')}
+          >
+            全部
+          </button>
+          {recommendationCategoryValues.map((category) => (
+            <button
+              key={category}
+              type="button"
+              aria-pressed={filter === category}
+              onClick={() => selectFilter(category)}
+            >
+              {recommendationCategoryConfig[category].label}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <a className={styles.allLink} href={props.allHref}>
+          查看全部推荐
+        </a>
+      )}
+
+      {activeItem ? (
+        <>
+          <div className={styles.metadata} aria-live="polite">
+            <p className={styles.categoryLabel}>
+              {recommendationCategoryConfig[activeItem.category].label}
+            </p>
+            <h2>{activeItem.title}</h2>
+            <dl className={styles.details}>
+              <div>
+                <dt>
+                  {
+                    recommendationCategoryConfig[activeItem.category]
+                      .creatorLabel
+                  }
+                </dt>
+                <dd>{activeItem.creator}</dd>
+              </div>
+              <div>
+                <dt>年份</dt>
+                <dd>{activeItem.year}</dd>
+              </div>
+            </dl>
+            <p className={styles.summary}>{activeItem.summary}</p>
+            <p className={styles.coverCredit}>
+              <span>封面署名：{activeItem.cover.credit}</span>
+              {activeItem.cover.kind === 'licensed' ? (
+                <>
+                  {' · '}
+                  <a
+                    href={activeItem.cover.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    封面来源
+                  </a>
+                  {' · '}
+                  <a
+                    href={activeItem.cover.licenseUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {activeItem.cover.license}
+                  </a>
+                </>
+              ) : (
+                '（原创排版）'
+              )}
+            </p>
+            <a
+              className={styles.externalLink}
+              href={activeItem.externalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`查看 ${activeItem.title} 的外部详情`}
+            >
+              查看作品详情
+            </a>
+          </div>
+
+          <div className={styles.stage}>
+            {status === 'available' && visibleActiveId ? (
+              <RecommendationStage
+                items={filteredItems}
+                activeId={visibleActiveId}
+                compact={mode === 'featured'}
+                reducedMotion={reducedMotion}
+                onSelect={selectItem}
+                onFailure={markFailed}
+              />
+            ) : (
+              <RecommendationFallback
+                items={filteredItems}
+                activeId={visibleActiveId}
+                onSelect={selectItem}
+              />
+            )}
+          </div>
+
+          {(status === 'unavailable' || status === 'failed') && (
+            <p className={styles.fallbackNotice}>
+              当前设备使用二维推荐视图。
+            </p>
+          )}
+        </>
+      ) : (
+        <p className={styles.emptyState}>该分类暂无推荐。</p>
+      )}
+
+      {mode === 'catalog' && (
+        <nav className={styles.navigation} aria-label="推荐项目导航">
+          <button
+            type="button"
+            disabled={filteredItems.length < 2}
+            onClick={() => selectAdjacent(-1)}
+          >
+            上一项
+          </button>
+          <button
+            type="button"
+            disabled={filteredItems.length < 2}
+            onClick={() => selectAdjacent(1)}
+          >
+            下一项
+          </button>
+        </nav>
+      )}
+    </section>
+  );
+};
+
+export default RecommendationExperience;
