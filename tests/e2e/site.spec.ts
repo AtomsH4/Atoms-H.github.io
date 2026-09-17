@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import sharp from 'sharp';
 
 test.use({
   launchOptions: {
@@ -174,6 +175,17 @@ test('推荐页在 WebGL 不可用时保留二维视图和详情链接', async (
   await expect(detailLink).toHaveAttribute('rel', /\bnoopener\b.*\bnoreferrer\b/);
 });
 
+test('推荐页在暗色系统偏好下仍保持浅色海报', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.goto('/Atoms-H.github.io/recommendations/');
+
+  await expect(page.locator('body')).toHaveCSS(
+    'background-color',
+    'rgb(247, 246, 241)',
+  );
+  await expect(page.locator('body')).toHaveCSS('color', 'rgb(9, 9, 9)');
+});
+
 test('推荐页在移动端遵循减少动态效果并保持纵向滚动', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -205,6 +217,7 @@ test('推荐页在移动端遵循减少动态效果并保持纵向滚动', async
 
 test('推荐页 Canvas 支持真实拖动并保持当前作品', async ({ page }) => {
   await page.goto('/Atoms-H.github.io/recommendations/');
+  await page.getByRole('button', { name: '音乐', exact: true }).click();
 
   const canvas = page.locator('canvas');
   await expect(canvas).toBeVisible();
@@ -219,6 +232,23 @@ test('推荐页 Canvas 支持真实拖动并保持当前作品', async ({ page }
 
   expect(box).not.toBeNull();
   if (!box) return;
+  expect(box.height).toBeGreaterThanOrEqual(420);
+  await page.waitForTimeout(250);
+  const { data: pixels, info } = await sharp(await canvas.screenshot())
+    .removeAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  let darkPixels = 0;
+  for (let index = 0; index < pixels.length; index += info.channels) {
+    if (
+      pixels[index] < 64 &&
+      pixels[index + 1] < 64 &&
+      pixels[index + 2] < 64
+    ) {
+      darkPixels += 1;
+    }
+  }
+  expect(darkPixels / (pixels.length / info.channels)).toBeGreaterThan(0.08);
 
   const centerX = box.x + box.width / 2;
   const centerY = box.y + box.height / 2;

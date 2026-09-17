@@ -46,6 +46,7 @@ export const BookModel = ({
       <mesh position={[0, 0, 0.365]} receiveShadow>
         <planeGeometry args={[2.94, 3.94]} />
         <meshStandardMaterial
+          key={texture?.uuid ?? 'cover-pending'}
           map={texture ?? undefined}
           color={active ? '#ffffff' : '#ededed'}
           roughness={0.5}

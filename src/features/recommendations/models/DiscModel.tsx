@@ -20,6 +20,7 @@ export const DiscModel = ({
       <mesh position={[0, 0, 0.051]} castShadow receiveShadow>
         <ringGeometry args={[0.34, 2, 96]} />
         <meshStandardMaterial
+          key={texture?.uuid ?? 'cover-pending'}
           map={texture ?? undefined}
           color={active ? '#ffffff' : '#e8e8e8'}
           metalness={0.15}
