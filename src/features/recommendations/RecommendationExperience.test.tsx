@@ -104,6 +104,17 @@ afterEach(() => {
 });
 
 describe('RecommendationExperience', () => {
+  it('defaults the catalog to music without an all filter', () => {
+    render(<RecommendationExperience items={items} mode="catalog" />);
+
+    expect(screen.queryByRole('button', { name: '全部' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '音乐' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getByRole('heading', { name: 'Music title' })).toBeVisible();
+  });
+
   it('filters categories and keeps one explicit active item', async () => {
     const user = userEvent.setup();
     render(<RecommendationExperience items={items} mode="catalog" />);
@@ -121,12 +132,24 @@ describe('RecommendationExperience', () => {
   it('wraps next and previous navigation and updates the hash without scrolling', async () => {
     const user = userEvent.setup();
     const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
-    render(<RecommendationExperience items={items} mode="catalog" />);
+    const secondMusic: RecommendationItem = {
+      ...items[0],
+      id: 'second-music',
+      title: 'Second music title',
+    };
+    render(
+      <RecommendationExperience
+        items={[items[0], secondMusic, ...items.slice(1)]}
+        mode="catalog"
+      />,
+    );
 
     await user.click(screen.getByRole('button', { name: '上一项' }));
 
-    expect(screen.getByRole('heading', { name: 'Screen title' })).toBeVisible();
-    await waitFor(() => expect(window.location.hash).toBe('#screen-item'));
+    expect(
+      screen.getByRole('heading', { name: 'Second music title' }),
+    ).toBeVisible();
+    await waitFor(() => expect(window.location.hash).toBe('#second-music'));
 
     await user.click(screen.getByRole('button', { name: '下一项' }));
 
@@ -142,6 +165,10 @@ describe('RecommendationExperience', () => {
     expect(
       await screen.findByRole('heading', { name: 'Book title' }),
     ).toBeVisible();
+    expect(screen.getByRole('button', { name: '书籍' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
   });
 
   it('renders the two-dimensional fallback when WebGL is unavailable', () => {
@@ -152,7 +179,7 @@ describe('RecommendationExperience', () => {
     expect(screen.getByText('当前设备使用二维推荐视图。')).toBeVisible();
     expect(screen.queryByTestId('recommendation-stage')).not.toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: '选择 Book title' }),
+      screen.getByRole('button', { name: '选择 Music title' }),
     ).toBeVisible();
   });
 

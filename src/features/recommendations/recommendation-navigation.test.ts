@@ -5,6 +5,7 @@ import {
   filterRecommendationItems,
   getAdjacentRecommendationId,
   getInitialRecommendationId,
+  getInitialRecommendationSelection,
 } from './recommendation-navigation';
 
 const items = ['music', 'book', 'screen'].map((category, index) => ({
@@ -19,11 +20,29 @@ const items = ['music', 'book', 'screen'].map((category, index) => ({
 })) as RecommendationItem[];
 
 describe('recommendation navigation', () => {
-  it('filters by semantic category and preserves all items for all', () => {
+  it('filters by semantic category', () => {
     expect(filterRecommendationItems(items, 'book').map((item) => item.id)).toEqual([
       'item-2',
     ]);
-    expect(filterRecommendationItems(items, 'all')).toEqual(items);
+  });
+
+  it('defaults to music and lets a deep link select its own category', () => {
+    expect(getInitialRecommendationSelection(items, '', 'music')).toEqual({
+      filter: 'music',
+      activeId: 'item-1',
+    });
+    expect(
+      getInitialRecommendationSelection(items, '#item-2', 'music'),
+    ).toEqual({
+      filter: 'book',
+      activeId: 'item-2',
+    });
+    expect(
+      getInitialRecommendationSelection(items, '#missing', 'music'),
+    ).toEqual({
+      filter: 'music',
+      activeId: 'item-1',
+    });
   });
 
   it('uses decoded valid hashes and falls back for invalid hashes', () => {

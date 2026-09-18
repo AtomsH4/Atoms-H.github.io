@@ -13,18 +13,23 @@ import { RecommendationStage } from './RecommendationStage';
 import {
   filterRecommendationItems,
   getAdjacentRecommendationId,
-  getInitialRecommendationId,
+  getInitialRecommendationSelection,
   type RecommendationFilter,
 } from './recommendation-navigation';
 import {
   recommendationCategoryConfig,
   recommendationCategoryValues,
+  type RecommendationCategory,
   type RecommendationItem,
 } from './recommendation-types';
 import { useWebGLAvailability } from './useWebGLAvailability';
 
 export type RecommendationExperienceProps =
-  | { mode: 'catalog'; items: RecommendationItem[] }
+  | {
+      mode: 'catalog';
+      items: RecommendationItem[];
+      defaultCategory?: RecommendationCategory;
+    }
   | { mode: 'featured'; items: RecommendationItem[]; allHref: string };
 
 const useMediaQuery = (query: string) => {
@@ -68,13 +73,25 @@ export const RecommendationExperience = (
     '(prefers-reduced-motion: reduce)',
   );
   const compact = mode === 'featured' || compactViewport;
-  const [filter, setFilter] = useState<RecommendationFilter>('all');
+  const defaultCategory =
+    mode === 'catalog' ? (props.defaultCategory ?? 'music') : 'music';
+  const initialSelection = getInitialRecommendationSelection(
+    items,
+    '',
+    defaultCategory,
+  );
+  const [filter, setFilter] = useState<RecommendationFilter>(
+    initialSelection.filter,
+  );
   const filteredItems = useMemo(
-    () => filterRecommendationItems(items, filter),
-    [filter, items],
+    () =>
+      mode === 'featured'
+        ? items
+        : filterRecommendationItems(items, filter),
+    [filter, items, mode],
   );
   const [activeId, setActiveId] = useState<string | null>(
-    items[0]?.id ?? null,
+    initialSelection.activeId,
   );
   const [hashReady, setHashReady] = useState(mode !== 'catalog');
   const [statusMessage, setStatusMessage] = useState('');
@@ -84,19 +101,24 @@ export const RecommendationExperience = (
   useEffect(() => {
     if (mode === 'catalog') {
       setHashReady(false);
-      setActiveId(getInitialRecommendationId(items, window.location.hash));
+      const selection = getInitialRecommendationSelection(
+        items,
+        window.location.hash,
+        defaultCategory,
+      );
+      setFilter(selection.filter);
+      setActiveId(selection.activeId);
       setHashReady(true);
       return;
     }
 
     setHashReady(true);
-    setFilter('all');
     setActiveId((currentId) =>
       items.some((item) => item.id === currentId)
         ? currentId
         : (items[0]?.id ?? null),
     );
-  }, [items, mode]);
+  }, [defaultCategory, items, mode]);
 
   useEffect(() => {
     if (!filteredItems.some((item) => item.id === activeId)) {
@@ -214,13 +236,6 @@ export const RecommendationExperience = (
 
       {mode === 'catalog' ? (
         <div className={styles.toolbar} role="toolbar" aria-label="筛选推荐">
-          <button
-            type="button"
-            aria-pressed={filter === 'all'}
-            onClick={() => selectFilter('all')}
-          >
-            全部
-          </button>
           {recommendationCategoryValues.map((category) => (
             <button
               key={category}
