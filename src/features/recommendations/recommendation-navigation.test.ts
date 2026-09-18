@@ -6,6 +6,7 @@ import {
   getAdjacentRecommendationId,
   getInitialRecommendationId,
   getInitialRecommendationSelection,
+  getRecommendationIdAtOffset,
 } from './recommendation-navigation';
 
 const items = ['music', 'book', 'screen'].map((category, index) => ({
@@ -60,6 +61,13 @@ describe('recommendation navigation', () => {
     expect(getAdjacentRecommendationId(items, 'item-3', 1)).toBe('item-1');
     expect(getAdjacentRecommendationId(items, 'item-1', -1)).toBe('item-3');
     expect(getAdjacentRecommendationId(items, 'missing', 1)).toBe('item-2');
+  });
+
+  it('resolves arbitrary wrapped offsets from the active item', () => {
+    expect(getRecommendationIdAtOffset(items, 'item-1', 2)).toBe('item-3');
+    expect(getRecommendationIdAtOffset(items, 'item-3', 2)).toBe('item-2');
+    expect(getRecommendationIdAtOffset(items, 'missing', -1)).toBe('item-3');
+    expect(getRecommendationIdAtOffset([], null, 1)).toBeNull();
   });
 
   it('disables navigation for fewer than two items', () => {

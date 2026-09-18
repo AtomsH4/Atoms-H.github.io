@@ -67,8 +67,20 @@ export const getAdjacentRecommendationId = (
 ): string | null => {
   if (items.length < 2) return null;
 
+  return getRecommendationIdAtOffset(items, activeId, direction);
+};
+
+export const getRecommendationIdAtOffset = (
+  items: RecommendationItem[],
+  activeId: string | null,
+  offset: number,
+): string | null => {
+  if (items.length === 0) return null;
+
   const activeIndex = items.findIndex((item) => item.id === activeId);
   const currentIndex = activeIndex === -1 ? 0 : activeIndex;
+  const nextIndex =
+    ((currentIndex + offset) % items.length + items.length) % items.length;
 
-  return items[(currentIndex + direction + items.length) % items.length].id;
+  return items[nextIndex]?.id ?? null;
 };
