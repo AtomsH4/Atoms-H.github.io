@@ -9,8 +9,8 @@ featured: false
 draft: false
 cover:
   kind: remote
-  src: "https://covers.openlibrary.org/b/id/314604-L.jpg?default=false"
-  sourceUrl: "https://openlibrary.org/works/OL505740W"
-  provider: open-library
-  credit: "Open Library cover repository"
+  src: "https://raw.githubusercontent.com/standardebooks/w-somerset-maugham_the-moon-and-sixpence/master/images/cover.jpg"
+  sourceUrl: "https://github.com/standardebooks/w-somerset-maugham_the-moon-and-sixpence"
+  provider: standard-ebooks
+  credit: "Standard Ebooks contributors"
 ---

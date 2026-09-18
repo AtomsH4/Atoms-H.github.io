@@ -3,6 +3,7 @@ export const presentationValues = ['disc', 'book'] as const;
 export const remoteCoverProviderValues = [
   'cover-art-archive',
   'open-library',
+  'standard-ebooks',
   'netflix',
   'youtube',
 ] as const;

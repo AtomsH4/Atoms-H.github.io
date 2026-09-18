@@ -59,6 +59,20 @@ describe('recommendations content schema', () => {
     ).toBe(true);
   });
 
+  it('uses the Standard Ebooks cover for The Moon and Sixpence', () => {
+    const directory = join(process.cwd(), 'src/data/recommendations');
+    const source = readFileSync(
+      join(directory, 'the-moon-and-sixpence.md'),
+      'utf8',
+    );
+
+    expect(source).toContain(
+      'raw.githubusercontent.com/standardebooks/w-somerset-maugham_the-moon-and-sixpence/master/images/cover.jpg',
+    );
+    expect(source).toContain('provider: standard-ebooks');
+    expect(source).toContain('credit: "Standard Ebooks contributors"');
+  });
+
   it('accepts a generated cover and applies boolean defaults', () => {
     const result = recommendationSchema.safeParse(validRecommendation);
 
