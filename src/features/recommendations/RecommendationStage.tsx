@@ -123,6 +123,7 @@ const ObjectPresentation = ({
 
   return (
     <group
+      userData={{ recommendationObject: true }}
       onPointerDown={beginDrag}
       onPointerMove={continueDrag}
       onPointerUp={endDrag}
@@ -301,6 +302,19 @@ const CanvasTrack = ({
   });
 
   const beginPan = (event: ThreeEvent<PointerEvent>) => {
+    const startedOnRecommendation = event.intersections.some(({ object }) => {
+      let current: THREE.Object3D | null = object;
+
+      while (current) {
+        if (current.userData.recommendationObject === true) return true;
+        current = current.parent;
+      }
+
+      return false;
+    });
+
+    if (startedOnRecommendation) return;
+
     event.stopPropagation();
     gl.domElement.setPointerCapture?.(event.pointerId);
     dragRef.current = startCanvasDrag(

@@ -189,6 +189,8 @@ test('推荐页在 WebGL 不可用时保留可拖动 CSS 立体视图', async ({
     page.getByText('当前设备使用 CSS 立体视图。', { exact: true }),
   ).toBeVisible();
   const object = page.locator('[data-css-recommendation-active]');
+  const heading = page.getByRole('heading', { level: 2 });
+  const activeTitle = await heading.textContent();
   await expect(object).toHaveAttribute('data-presentation', 'disc');
   const before = await object.getAttribute('style');
   const box = await object.boundingBox();
@@ -205,6 +207,7 @@ test('推荐页在 WebGL 不可用时保留可拖动 CSS 立体视图', async ({
   expect(during).not.toBe(before);
   await page.mouse.up();
   await expect(object).toHaveAttribute('style', /--rx:\s*0deg/);
+  await expect(heading).toHaveText(activeTitle ?? '');
   await expect(page.locator('canvas')).toHaveCount(0);
 
   const cover = page.getByRole('img', { name: '我表示理解 封面' });
@@ -217,6 +220,26 @@ test('推荐页在 WebGL 不可用时保留可拖动 CSS 立体视图', async ({
   await expect(detailLink).toBeVisible();
   await expect(detailLink).toHaveAttribute('target', '_blank');
   await expect(detailLink).toHaveAttribute('rel', /\bnoopener\b.*\bnoreferrer\b/);
+
+  const stage = page.getByTestId('recommendation-fallback-stage');
+  const stageBox = await stage.boundingBox();
+  expect(stageBox).not.toBeNull();
+  if (!stageBox) return;
+
+  await page.mouse.move(
+    stageBox.x + stageBox.width * 0.55,
+    stageBox.y + stageBox.height * 0.12,
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    stageBox.x + stageBox.width * 0.28,
+    stageBox.y + stageBox.height * 0.12,
+    { steps: 8 },
+  );
+  await expect(stage).toHaveAttribute('data-panning', 'true');
+  await page.mouse.up();
+
+  await expect(heading).not.toHaveText(activeTitle ?? '');
 });
 
 test('推荐页在暗色系统偏好下仍保持浅色海报', async ({ page }) => {
@@ -238,6 +261,25 @@ test('推荐页在移动端遵循减少动态效果并保持纵向滚动', async
   const experience = page.locator('[data-recommendation-experience]');
   await expect(experience).toHaveAttribute('data-reduced-motion', 'true');
   await expect(page.getByText(/封面来源：/)).toBeVisible();
+  const heading = page.getByRole('heading', { level: 2 });
+  const activeTitle = await heading.textContent();
+  const canvas = page.locator('canvas');
+  const canvasBox = await canvas.boundingBox();
+  expect(canvasBox).not.toBeNull();
+  if (!canvasBox) return;
+
+  await page.mouse.move(
+    canvasBox.x + canvasBox.width * 0.78,
+    canvasBox.y + canvasBox.height * 0.14,
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    canvasBox.x + canvasBox.width * 0.16,
+    canvasBox.y + canvasBox.height * 0.14,
+    { steps: 8 },
+  );
+  await page.mouse.up();
+  await expect(heading).not.toHaveText(activeTitle ?? '');
 
   const horizontalOverflow = await page.evaluate(() =>
     Math.max(
@@ -265,6 +307,7 @@ test('推荐页从 Canvas 空白处拖动会横向切换作品', async ({ page }
   );
   const heading = page.getByRole('heading', { level: 2 });
   const before = await heading.textContent();
+  const beforeHash = new URL(page.url()).hash;
   const box = await canvas.boundingBox();
 
   expect(box).not.toBeNull();
@@ -280,9 +323,14 @@ test('推荐页从 Canvas 空白处拖动会横向切换作品', async ({ page }
     box.y + box.height * 0.14,
     { steps: 8 },
   );
+  await expect(canvas).toHaveAttribute('data-track-panning', 'true');
   await page.mouse.up();
 
   await expect(heading).not.toHaveText(before ?? '');
+  await expect(canvas).toHaveAttribute('data-track-panning', 'false');
+  await expect
+    .poll(() => new URL(page.url()).hash)
+    .not.toBe(beforeHash);
 });
 
 test('推荐页 Canvas 支持真实拖动并保持当前作品', async ({ page }) => {
@@ -298,6 +346,7 @@ test('推荐页 Canvas 支持真实拖动并保持当前作品', async ({ page }
   await expect(canvas).toHaveCSS('touch-action', 'pan-y');
   const heading = page.getByRole('heading', { level: 2 });
   const activeTitle = await heading.textContent();
+  const activeHash = new URL(page.url()).hash;
   const box = await canvas.boundingBox();
 
   expect(box).not.toBeNull();
@@ -306,11 +355,13 @@ test('推荐页 Canvas 支持真实拖动并保持当前作品', async ({ page }
   await page.waitForTimeout(500);
   const beforeDrag = await canvas.screenshot();
 
-  const centerX = box.x + box.width / 2;
+  // Avoid the transparent CD hub so the gesture begins on artwork.
+  const centerX = box.x + box.width * 0.62;
   const centerY = box.y + box.height / 2;
   await page.mouse.move(centerX, centerY);
   await page.mouse.down();
   await page.mouse.move(centerX + 80, centerY + 30, { steps: 5 });
+  await expect(canvas).toHaveAttribute('data-track-panning', 'false');
   await page.waitForTimeout(100);
   const duringDrag = await canvas.screenshot();
   expect(duringDrag.equals(beforeDrag)).toBe(false);
@@ -319,6 +370,7 @@ test('推荐页 Canvas 支持真实拖动并保持当前作品', async ({ page }
 
   await expect(canvas).toBeVisible();
   await expect(heading).toHaveText(activeTitle ?? '');
+  expect(new URL(page.url()).hash).toBe(activeHash);
 
   const contextLossHandled = await canvas.evaluate((element) => {
     const event = new Event('webglcontextlost', { cancelable: true });

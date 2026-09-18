@@ -325,7 +325,8 @@ export const RecommendationExperience = (
 
           <p className={styles.posterIndex} aria-hidden="true">
             {String(activePosition).padStart(2, '0')} /{' '}
-            {String(filteredItems.length).padStart(2, '0')} · Drag to rotate
+            {String(filteredItems.length).padStart(2, '0')} · 拖动画布浏览 ·
+            拖动作品旋转
           </p>
 
           {(status === 'unavailable' || status === 'failed') && (
