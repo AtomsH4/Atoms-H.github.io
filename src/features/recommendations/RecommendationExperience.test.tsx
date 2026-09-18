@@ -251,4 +251,33 @@ describe('RecommendationCover', () => {
     expect(screen.getByText('Artist')).toBeVisible();
     expect(screen.getByText('2026')).toBeVisible();
   });
+
+  it('renders a remote image and falls back to generated artwork on failure', () => {
+    const remoteItem: RecommendationItem = {
+      ...items[0],
+      id: 'remote-item',
+      title: 'Remote title',
+      cover: {
+        kind: 'remote',
+        src: 'https://covers.openlibrary.org/b/id/314604-L.jpg?default=false',
+        sourceUrl: 'https://openlibrary.org/works/OL505740W',
+        provider: 'open-library',
+        credit: 'Open Library cover repository',
+      },
+    };
+
+    render(<RecommendationCover item={remoteItem} />);
+    const image = screen.getByRole('img', { name: 'Remote title 封面' });
+    expect(image).toHaveAttribute('src', remoteItem.cover.kind === 'remote' ? remoteItem.cover.src : '');
+
+    fireEvent.error(image);
+
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    expect(screen.getByText('Remote title').closest('[data-cover-kind]')).toHaveAttribute(
+      'data-cover-kind',
+      'generated',
+    );
+    expect(screen.getByText('Artist')).toBeVisible();
+    expect(screen.getByText('2026')).toBeVisible();
+  });
 });

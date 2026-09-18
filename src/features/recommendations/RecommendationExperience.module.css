@@ -149,15 +149,34 @@
 }
 
 .generatedCover {
+  position: relative;
+  overflow: hidden;
   display: grid;
   aspect-ratio: 1;
   grid-template-rows: auto 1fr auto;
   place-content: space-between;
   gap: 1rem;
   padding: 1rem;
-  color: #fff;
-  background: #111;
+  color: var(--cover-foreground, #fff);
+  background: var(--cover-background, #111);
   text-align: left;
+}
+
+.generatedCover::before {
+  position: absolute;
+  top: -22%;
+  right: -18%;
+  width: 64%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--cover-accent, #fff);
+  content: '';
+  opacity: 0.92;
+}
+
+.generatedCover > * {
+  position: relative;
+  z-index: 1;
 }
 
 .generatedTitle {

@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   createGeneratedCoverDataUrl,
+  getGeneratedCoverPalette,
   useRecommendationTexture,
 } from './create-cover-texture';
 import type { RecommendationItem } from './recommendation-types';
@@ -14,6 +15,7 @@ const decodeSvgDataUrl = (dataUrl: string) =>
 describe('createGeneratedCoverDataUrl', () => {
   it('creates a self-contained 1024px SVG data URL with system typography', () => {
     const result = createGeneratedCoverDataUrl({
+      id: 'cover-a',
       title: 'A title',
       creator: 'A creator',
       year: 2026,
@@ -24,8 +26,10 @@ describe('createGeneratedCoverDataUrl', () => {
     expect(decoded).toContain('width="1024"');
     expect(decoded).toContain('height="1024"');
     expect(decoded).toContain('viewBox="0 0 1024 1024"');
-    expect(decoded).toContain('fill="#000"');
-    expect(decoded).toContain('fill="#fff"');
+    const palette = getGeneratedCoverPalette('cover-a');
+    expect(decoded).toContain(`fill="${palette.background}"`);
+    expect(decoded).toContain(`fill="${palette.accent}"`);
+    expect(decoded).toContain(`fill="${palette.foreground}"`);
     expect(decoded).toContain('font-family="system-ui');
     expect(decoded).toContain('xmlns="http://www.w3.org/2000/svg"');
     expect(decoded).not.toMatch(/<(?:image|use)\b|\bhref=|url\(/);
@@ -33,6 +37,7 @@ describe('createGeneratedCoverDataUrl', () => {
 
   it('XML-escapes title and creator text so they cannot inject SVG', () => {
     const result = createGeneratedCoverDataUrl({
+      id: 'cover-b',
       title: `A & B < C > D "quoted" 'single'`,
       creator: `</text><script>alert("x")</script> & 'creator'`,
       year: 2026,
@@ -46,6 +51,16 @@ describe('createGeneratedCoverDataUrl', () => {
       '&lt;/text&gt;&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt; &amp; &apos;creator&apos;',
     );
     expect(decoded).not.toContain('<script>');
+  });
+
+  it('creates a stable non-monochrome palette for each item', () => {
+    expect(getGeneratedCoverPalette('music-item')).toEqual(
+      getGeneratedCoverPalette('music-item'),
+    );
+    const palette = getGeneratedCoverPalette('music-item');
+    expect(
+      new Set([palette.background, palette.accent, palette.foreground]).size,
+    ).toBe(3);
   });
 });
 
@@ -130,6 +145,33 @@ describe('useRecommendationTexture', () => {
     act(() => licensedRequest.onError?.(new Error('load failed')));
 
     expect(licensedDispose).toHaveBeenCalledOnce();
+    expect(pendingLoads).toHaveLength(2);
+    expect(pendingLoads[1].url).toMatch(/^data:image\/svg\+xml/);
+
+    act(() => pendingLoads[1].onLoad?.(pendingLoads[1].texture));
+
+    expect(result.current).toBe(pendingLoads[1].texture);
+    expect(result.current?.colorSpace).toBe(THREE.SRGBColorSpace);
+    unmount();
+  });
+
+  it('loads a remote cover and falls back to generated artwork on failure', () => {
+    const item = createItem('remote', {
+      kind: 'remote',
+      src: 'https://covers.openlibrary.org/b/id/314604-L.jpg?default=false',
+      sourceUrl: 'https://openlibrary.org/works/OL505740W',
+      provider: 'open-library',
+      credit: 'Open Library cover repository',
+    });
+    const { result, unmount } = renderHook(() =>
+      useRecommendationTexture(item),
+    );
+    const remoteRequest = pendingLoads[0];
+
+    expect(remoteRequest.url).toBe(item.cover.kind === 'remote' ? item.cover.src : '');
+
+    act(() => remoteRequest.onError?.(new Error('load failed')));
+
     expect(pendingLoads).toHaveLength(2);
     expect(pendingLoads[1].url).toMatch(/^data:image\/svg\+xml/);
 
