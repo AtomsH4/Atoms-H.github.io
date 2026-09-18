@@ -56,6 +56,31 @@ export const createGeneratedCoverDataUrl = (input: {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 };
 
+export const getSquareTextureTransform = (
+  width: number,
+  height: number,
+): { repeat: [number, number]; offset: [number, number] } | null => {
+  if (width <= 0 || height <= 0) return null;
+
+  if (width > height) {
+    const repeatX = height / width;
+    return {
+      repeat: [repeatX, 1],
+      offset: [(1 - repeatX) / 2, 0],
+    };
+  }
+
+  if (height > width) {
+    const repeatY = width / height;
+    return {
+      repeat: [1, repeatY],
+      offset: [0, (1 - repeatY) / 2],
+    };
+  }
+
+  return { repeat: [1, 1], offset: [0, 0] };
+};
+
 export const useRecommendationTexture = (
   item: RecommendationItem,
 ): THREE.Texture | null => {
@@ -98,6 +123,14 @@ export const useRecommendationTexture = (
             }
 
             loadedTexture.colorSpace = THREE.SRGBColorSpace;
+            const image = loadedTexture.image;
+            const transform = image
+              ? getSquareTextureTransform(image.width, image.height)
+              : null;
+            if (transform) {
+              loadedTexture.repeat.set(...transform.repeat);
+              loadedTexture.offset.set(...transform.offset);
+            }
             if (visibleTexture && visibleTexture !== loadedTexture) {
               disposeOwnedTexture(visibleTexture);
             }

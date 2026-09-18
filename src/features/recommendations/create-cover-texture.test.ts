@@ -5,12 +5,40 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createGeneratedCoverDataUrl,
   getGeneratedCoverPalette,
+  getSquareTextureTransform,
   useRecommendationTexture,
 } from './create-cover-texture';
 import type { RecommendationItem } from './recommendation-types';
 
 const decodeSvgDataUrl = (dataUrl: string) =>
   decodeURIComponent(dataUrl.slice(dataUrl.indexOf(',') + 1));
+
+describe('getSquareTextureTransform', () => {
+  it('crops a portrait image to a centered square', () => {
+    const transform = getSquareTextureTransform(1400, 2100);
+    expect(transform?.repeat).toEqual([1, 2 / 3]);
+    expect(transform?.offset[0]).toBe(0);
+    expect(transform?.offset[1]).toBeCloseTo(1 / 6);
+  });
+
+  it('crops a landscape image to a centered square', () => {
+    const transform = getSquareTextureTransform(2100, 1400);
+    expect(transform?.repeat).toEqual([2 / 3, 1]);
+    expect(transform?.offset[0]).toBeCloseTo(1 / 6);
+    expect(transform?.offset[1]).toBe(0);
+  });
+
+  it('leaves a square image unchanged', () => {
+    expect(getSquareTextureTransform(1024, 1024)).toEqual({
+      repeat: [1, 1],
+      offset: [0, 0],
+    });
+  });
+
+  it('returns null when either image dimension is non-positive', () => {
+    expect(getSquareTextureTransform(0, 1024)).toBeNull();
+  });
+});
 
 describe('createGeneratedCoverDataUrl', () => {
   it('creates a self-contained 1024px SVG data URL with system typography', () => {
@@ -113,6 +141,10 @@ describe('useRecommendationTexture', () => {
     );
     const request = pendingLoads[0];
     const dispose = vi.spyOn(request.texture, 'dispose');
+    Object.defineProperty(request.texture, 'image', {
+      configurable: true,
+      value: { width: 1400, height: 2100 },
+    });
 
     expect(request.url).toMatch(/^data:image\/svg\+xml/);
 
@@ -120,6 +152,9 @@ describe('useRecommendationTexture', () => {
 
     expect(result.current).toBe(request.texture);
     expect(request.texture.colorSpace).toBe(THREE.SRGBColorSpace);
+    expect(request.texture.repeat.toArray()).toEqual([1, 2 / 3]);
+    expect(request.texture.offset.x).toBe(0);
+    expect(request.texture.offset.y).toBeCloseTo(1 / 6);
 
     unmount();
     expect(dispose).toHaveBeenCalledOnce();
