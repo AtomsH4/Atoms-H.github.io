@@ -17,7 +17,6 @@ const validRecommendation = {
   creator: 'Miles Davis',
   year: 1959,
   recommendDate: '2026-09-18',
-  summary: 'A landmark modal jazz album.',
   externalUrl: 'https://en.wikipedia.org/wiki/Kind_of_Blue',
   cover: {
     kind: 'generated',
@@ -69,6 +68,37 @@ describe('recommendations content schema', () => {
     });
 
     expect(result.success).toBe(false);
+  });
+
+  it('accepts a strict HTTPS remote cover', () => {
+    expect(recommendationSchema.safeParse({
+      ...validRecommendation,
+      cover: {
+        kind: 'remote',
+        src: 'https://covers.openlibrary.org/b/id/314604-L.jpg?default=false',
+        sourceUrl: 'https://openlibrary.org/works/OL505740W',
+        provider: 'open-library',
+        credit: 'Open Library cover repository',
+      },
+    }).success).toBe(true);
+  });
+
+  it('rejects the removed summary field and insecure remote images', () => {
+    expect(recommendationSchema.safeParse({
+      ...validRecommendation,
+      summary: 'Legacy recommendation copy',
+    }).success).toBe(false);
+
+    expect(recommendationSchema.safeParse({
+      ...validRecommendation,
+      cover: {
+        kind: 'remote',
+        src: 'http://example.com/cover.jpg',
+        sourceUrl: 'https://example.com/item',
+        provider: 'youtube',
+        credit: 'Example',
+      },
+    }).success).toBe(false);
   });
 
   it.each([

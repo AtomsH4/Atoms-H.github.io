@@ -5,6 +5,7 @@ import {
   recommendationCategoryConfig,
   recommendationCategoryValues,
   resolvePresentation,
+  type RecommendationCover,
 } from './recommendation-types';
 
 describe('recommendation types', () => {
@@ -19,6 +20,18 @@ describe('recommendation types', () => {
       creatorLabel: '导演 / 主创',
       defaultPresentation: 'disc',
     });
+  });
+
+  it('keeps remote cover provenance separate from presentation', () => {
+    const cover: RecommendationCover = {
+      kind: 'remote',
+      src: 'https://coverartarchive.org/release-group/example/front-1200',
+      sourceUrl: 'https://musicbrainz.org/release-group/example',
+      provider: 'cover-art-archive',
+      credit: 'Cover Art Archive / MusicBrainz contributors',
+    };
+
+    expect(cover.kind).toBe('remote');
   });
 
   it.each([

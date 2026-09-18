@@ -4,6 +4,7 @@ import { glob } from 'astro/loaders';
 import {
   presentationValues,
   recommendationCategoryValues,
+  remoteCoverProviderValues,
 } from './features/recommendations/recommendation-types';
 
 const entrySchema = z.object({
@@ -34,6 +35,13 @@ const recommendationCoverSchema = z.discriminatedUnion('kind', [
     licenseUrl: httpsUrl,
     credit: z.string().min(1),
   }).strict(),
+  z.object({
+    kind: z.literal('remote'),
+    src: httpsUrl,
+    sourceUrl: httpsUrl,
+    provider: z.enum(remoteCoverProviderValues),
+    credit: z.string().min(1),
+  }).strict(),
 ]);
 
 const recommendationSchema = z.object({
@@ -43,7 +51,6 @@ const recommendationSchema = z.object({
   creator: z.string().min(1),
   year: z.number().int().min(1800).max(2100),
   recommendDate: z.coerce.date(),
-  summary: z.string().min(1),
   externalUrl: httpsUrl,
   featured: z.boolean().default(false),
   draft: z.boolean().default(false),

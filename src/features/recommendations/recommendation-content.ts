@@ -46,7 +46,6 @@ export const toRecommendationItem = (
   ),
   creator: entry.data.creator,
   year: entry.data.year,
-  summary: entry.data.summary,
   externalUrl: entry.data.externalUrl,
   cover:
     entry.data.cover.kind === 'licensed'

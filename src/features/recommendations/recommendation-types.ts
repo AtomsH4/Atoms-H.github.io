@@ -1,9 +1,17 @@
 export const recommendationCategoryValues = ['music', 'book', 'screen'] as const;
 export const presentationValues = ['disc', 'book'] as const;
+export const remoteCoverProviderValues = [
+  'cover-art-archive',
+  'open-library',
+  'netflix',
+  'youtube',
+] as const;
 
 export type RecommendationCategory =
   (typeof recommendationCategoryValues)[number];
 export type RecommendationPresentation = (typeof presentationValues)[number];
+export type RemoteCoverProvider =
+  (typeof remoteCoverProviderValues)[number];
 
 export type RecommendationCover =
   | {
@@ -17,6 +25,13 @@ export type RecommendationCover =
       license: string;
       licenseUrl: string;
       credit: string;
+    }
+  | {
+      kind: 'remote';
+      src: string;
+      sourceUrl: string;
+      provider: RemoteCoverProvider;
+      credit: string;
     };
 
 export type RecommendationItem = {
@@ -26,7 +41,6 @@ export type RecommendationItem = {
   presentation?: RecommendationPresentation;
   creator: string;
   year: number;
-  summary: string;
   externalUrl: string;
   cover: RecommendationCover;
 };

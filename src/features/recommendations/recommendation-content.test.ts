@@ -16,7 +16,6 @@ const entries: RecommendationEntry[] = [
       creator: 'Author',
       year: 2020,
       recommendDate: new Date('2026-09-01'),
-      summary: 'Older summary',
       externalUrl: 'https://example.com/older',
       featured: true,
       draft: false,
@@ -31,7 +30,6 @@ const entries: RecommendationEntry[] = [
       creator: 'Artist',
       year: 2021,
       recommendDate: new Date('2026-09-18'),
-      summary: 'Draft summary',
       externalUrl: 'https://example.com/draft',
       featured: true,
       draft: true,
@@ -46,7 +44,6 @@ const entries: RecommendationEntry[] = [
       creator: 'Director',
       year: 2022,
       recommendDate: new Date('2026-09-17'),
-      summary: 'Newer featured summary',
       externalUrl: 'https://example.com/newer-featured',
       featured: true,
       draft: false,
@@ -61,7 +58,6 @@ const entries: RecommendationEntry[] = [
       creator: 'Artist',
       year: 2023,
       recommendDate: new Date('2026-09-19'),
-      summary: 'Newest unfeatured summary',
       externalUrl: 'https://example.com/newest-unfeatured',
       featured: false,
       draft: false,
@@ -96,13 +92,12 @@ describe('recommendation content helpers', () => {
       presentation: 'book',
       creator: 'Author',
       year: 2020,
-      summary: 'Older summary',
       externalUrl: 'https://example.com/older',
       cover: { kind: 'generated', credit: 'AtomsH4' },
     });
   });
 
-  it('prefixes licensed cover paths and leaves generated covers unchanged', () => {
+  it('prefixes licensed cover paths and leaves generated and remote covers unchanged', () => {
     const licensed: RecommendationEntry = {
       ...entries[0],
       id: 'licensed',
@@ -130,6 +125,25 @@ describe('recommendation content helpers', () => {
     });
     expect(toRecommendationItem(entries[0], '/Atoms-H.github.io/').cover).toEqual(
       entries[0].data.cover,
+    );
+
+    const remote: RecommendationEntry = {
+      ...entries[0],
+      id: 'remote',
+      data: {
+        ...entries[0].data,
+        cover: {
+          kind: 'remote',
+          src: 'https://covers.openlibrary.org/b/id/314604-L.jpg?default=false',
+          sourceUrl: 'https://openlibrary.org/works/OL505740W',
+          provider: 'open-library',
+          credit: 'Open Library cover repository',
+        },
+      },
+    };
+
+    expect(toRecommendationItem(remote, '/Atoms-H.github.io/').cover).toEqual(
+      remote.data.cover,
     );
   });
 });
