@@ -261,7 +261,7 @@ export const RecommendationExperience = (
             )}
           </div>
 
-          <div className={styles.metadata}>
+          <div className={styles.metadata} data-recommendation-metadata="">
             <p className={styles.categoryLabel}>
               {recommendationCategoryConfig[activeItem.category].label}
             </p>

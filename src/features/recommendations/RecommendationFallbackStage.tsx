@@ -43,6 +43,7 @@ const PhysicalObject = ({
       }`}
       aria-label={`${active ? '旋转' : '选择'} ${item.title}`}
       aria-current={active ? 'true' : undefined}
+      data-css-recommendation-active={active ? '' : undefined}
       data-dragging={String(active && rotation.dragging)}
       data-offset={offset}
       data-presentation={presentation}
@@ -88,6 +89,7 @@ export const RecommendationFallbackStage = ({
   return (
     <div
       className={styles.cssStage}
+      data-css-recommendation-stage=""
       data-compact={String(compact)}
       data-reduced-motion={String(reducedMotion)}
       data-testid="recommendation-fallback-stage"
