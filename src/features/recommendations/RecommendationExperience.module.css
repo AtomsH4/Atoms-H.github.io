@@ -506,6 +506,8 @@
   .posterIndex {
     bottom: 7.5rem;
     left: 1rem;
+    padding: 0.25rem 0.35rem;
+    background: rgb(247 246 241 / 88%);
   }
 
   .fallbackNotice {
