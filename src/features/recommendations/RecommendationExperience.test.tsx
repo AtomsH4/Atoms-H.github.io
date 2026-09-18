@@ -119,9 +119,8 @@ describe('RecommendationExperience', () => {
       'data-mode',
       'catalog',
     );
-    expect(
-      screen.getByText(/拖动画布浏览 · 拖动作品旋转/),
-    ).toBeVisible();
+    expect(screen.getByText('01 / 01')).toBeVisible();
+    expect(screen.queryByText(/拖动画布|拖动作品/)).not.toBeInTheDocument();
   });
 
   it('defaults the catalog to music without an all filter', () => {

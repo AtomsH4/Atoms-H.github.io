@@ -21,6 +21,7 @@ import * as THREE from 'three';
 
 import {
   finishCanvasDrag,
+  getCanvasReleaseOffset,
   moveCanvasDrag,
   startCanvasDrag,
   type CanvasDragState,
@@ -375,6 +376,15 @@ const CanvasTrack = ({
 
     dragRef.current = null;
     setPanning(false);
+    track.position.x = getCanvasReleaseOffset(
+      result,
+      pixelsToWorld,
+      reducedMotion,
+    );
+
+    if (gl.domElement.hasPointerCapture?.(event.pointerId)) {
+      gl.domElement.releasePointerCapture?.(event.pointerId);
+    }
 
     if (result.steps !== 0 && nextId && nextId !== activeId) {
       onSelect(nextId);

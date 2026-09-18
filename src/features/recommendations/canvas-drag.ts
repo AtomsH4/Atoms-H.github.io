@@ -98,3 +98,9 @@ export const finishCanvasDrag = (
     rebasedOffsetX: state.offsetX + steps * options.spacingPx,
   };
 };
+
+export const getCanvasReleaseOffset = (
+  result: CanvasDragResult,
+  unitsPerPixel: number,
+  reducedMotion: boolean,
+) => (reducedMotion ? 0 : result.rebasedOffsetX * unitsPerPixel);

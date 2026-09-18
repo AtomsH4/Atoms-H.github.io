@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   finishCanvasDrag,
+  getCanvasReleaseOffset,
   moveCanvasDrag,
   startCanvasDrag,
 } from './canvas-drag';
@@ -48,6 +49,13 @@ describe('canvas drag routing', () => {
         reducedMotion: true,
       }),
     ).toEqual({ steps: 1, rebasedOffsetX: 40 });
+  });
+
+  it('maps the rebased release offset into render units before settling', () => {
+    const result = { steps: 1, rebasedOffsetX: -20 };
+
+    expect(getCanvasReleaseOffset(result, 0.01, false)).toBe(-0.2);
+    expect(getCanvasReleaseOffset(result, 0.01, true)).toBe(0);
   });
 
   it('does not navigate before a horizontal gesture is established', () => {
