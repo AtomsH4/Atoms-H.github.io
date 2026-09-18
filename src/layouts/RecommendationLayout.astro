@@ -27,40 +27,80 @@ const { title } = Astro.props;
 </html>
 
 <style is:global>
+  html:has(body.recommendation-theme) {
+    --recommendation-page: #ebe5db;
+    --recommendation-page-accent-rgb: 196 79 50;
+
+    background-color: var(--recommendation-page);
+    background-image:
+      radial-gradient(circle at 12% 4%, rgb(255 255 255 / 74%), transparent 30%),
+      radial-gradient(
+        circle at 88% 18%,
+        rgb(var(--recommendation-page-accent-rgb) / 24%),
+        transparent 34%
+      ),
+      radial-gradient(
+        circle at 14% 78%,
+        rgb(var(--recommendation-page-accent-rgb) / 16%),
+        transparent 38%
+      );
+    background-attachment: fixed;
+  }
+
+  html:has(
+      body.recommendation-theme
+        [data-recommendation-experience][data-category='book']
+    ) {
+    --recommendation-page-accent-rgb: 173 118 31;
+  }
+
+  html:has(
+      body.recommendation-theme
+        [data-recommendation-experience][data-category='screen']
+    ) {
+    --recommendation-page-accent-rgb: 71 114 85;
+  }
+
   .recommendation-theme {
-    --poster-paper: #f7f6f1;
-    --poster-ink: #090909;
-    --color-page: var(--poster-paper);
-    --color-text: var(--poster-ink);
-    --color-muted: #4a4a4a;
-    --color-accent: var(--poster-ink);
-    --color-accent-deep: var(--poster-ink);
-    --color-surface: transparent;
-    --color-surface-strong: #fff;
-    --color-border: rgb(0 0 0 / 18%);
-    --color-nav-active: rgb(0 0 0 / 7%);
+    --recommendation-ink: #302b24;
+    --color-page: var(--recommendation-page);
+    --color-text: var(--recommendation-ink);
+    --color-muted: #6f665b;
+    --color-accent: #8a5d1b;
+    --color-accent-deep: #3d342a;
+    --color-surface: rgb(255 252 246 / 54%);
+    --color-surface-strong: rgb(255 252 246 / 76%);
+    --color-border: rgb(255 255 255 / 72%);
+    --color-nav-active: rgb(255 252 246 / 72%);
+    --shadow-glass: 0 24px 70px rgb(75 61 42 / 13%);
+    --shadow-soft: 0 14px 38px rgb(75 61 42 / 9%);
     color-scheme: light;
-    color: var(--poster-ink);
-    background: var(--poster-paper);
+    color: var(--recommendation-ink);
+    background: transparent;
   }
 
   .recommendation-theme .site-header {
-    margin-top: 0.5rem;
-    padding: 0.5rem 1rem;
-    border-color: rgb(0 0 0 / 18%);
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+    margin-top: 1rem;
+    border-color: rgb(255 255 255 / 74%);
+    border-radius: var(--radius-lg);
+    background: rgb(255 252 246 / 56%);
+    box-shadow: var(--shadow-glass), inset 0 1px 0 rgb(255 255 255 / 82%);
+    backdrop-filter: blur(24px) saturate(118%);
+    -webkit-backdrop-filter: blur(24px) saturate(118%);
   }
 
   .recommendation-theme main {
-    width: min(100%, 96rem);
-    margin: 0.75rem auto 1.5rem;
+    width: 100%;
+    margin: 1.25rem 0 2rem;
   }
 
   .recommendation-theme .site-footer {
-    color: var(--poster-ink);
+    color: var(--color-muted);
+  }
+
+  @media (max-width: 760px) {
+    .recommendation-theme main {
+      margin-top: 0.75rem;
+    }
   }
 </style>

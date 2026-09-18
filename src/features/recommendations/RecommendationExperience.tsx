@@ -69,9 +69,7 @@ export const RecommendationExperience = (
   const { items, mode } = props;
   const { status, markFailed } = useWebGLAvailability();
   const compactViewport = useMediaQuery('(max-width: 760px)');
-  const reducedMotion = useMediaQuery(
-    '(prefers-reduced-motion: reduce)',
-  );
+  const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
   const compact = mode === 'featured' || compactViewport;
   const defaultCategory =
     mode === 'catalog' ? (props.defaultCategory ?? 'music') : 'music';
@@ -85,9 +83,7 @@ export const RecommendationExperience = (
   );
   const filteredItems = useMemo(
     () =>
-      mode === 'featured'
-        ? items
-        : filterRecommendationItems(items, filter),
+      mode === 'featured' ? items : filterRecommendationItems(items, filter),
     [filter, items, mode],
   );
   const [activeId, setActiveId] = useState<string | null>(
@@ -224,6 +220,7 @@ export const RecommendationExperience = (
       className={styles.experience}
       aria-label="推荐浏览"
       data-mode={mode}
+      data-category={activeItem?.category}
       data-recommendation-experience=""
       data-reduced-motion={String(reducedMotion)}
       onKeyDown={handleKeyDown}
@@ -239,166 +236,183 @@ export const RecommendationExperience = (
       </p>
 
       {activeItem ? (
-        <div className={styles.poster} data-testid="recommendation-poster">
-          <div className={styles.stage}>
-            {status === 'available' && visibleActiveId ? (
-              <RecommendationStage
-                items={filteredItems}
-                activeId={visibleActiveId}
-                compact={compact}
-                reducedMotion={reducedMotion}
-                onSelect={selectItem}
-                onFailure={markFailed}
-              />
-            ) : (
-              <RecommendationFallbackStage
-                items={filteredItems}
-                activeId={visibleActiveId ?? activeItem.id}
-                compact={compact}
-                reducedMotion={reducedMotion}
-                onSelect={selectItem}
-              />
-            )}
+        <>
+          <div
+            className={styles.diffusionBackdrop}
+            data-testid="recommendation-diffusion-backdrop"
+            aria-hidden="true"
+          >
+            <span className={styles.diffusionPrimary} />
+            <span className={styles.diffusionSecondary} />
+            <span className={styles.diffusionTertiary} />
           </div>
-
-          <div className={styles.metadata} data-recommendation-metadata="">
-            <p className={styles.categoryLabel}>
-              {recommendationCategoryConfig[activeItem.category].label}
-            </p>
-            <h2>{activeItem.title}</h2>
-            <dl className={styles.details}>
-              <div>
-                <dt>
-                  {
-                    recommendationCategoryConfig[activeItem.category]
-                      .creatorLabel
-                  }
-                </dt>
-                <dd>{activeItem.creator}</dd>
-              </div>
-              <div>
-                <dt>年份</dt>
-                <dd>{activeItem.year}</dd>
-              </div>
-            </dl>
-          </div>
-
-          {mode === 'catalog' && (
-            <div
-              className={styles.toolbar}
-              role="toolbar"
-              aria-label="筛选推荐"
-            >
-              {recommendationCategoryValues.map((category) => (
-                <button
-                  key={category}
-                  type="button"
-                  aria-pressed={filter === category}
-                  onClick={() => selectFilter(category)}
-                >
-                  {recommendationCategoryConfig[category].label}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {mode === 'catalog' && (
-            <nav className={styles.navigation} aria-label="推荐项目导航">
-              <button
-                type="button"
-                disabled={filteredItems.length < 2}
-                onClick={() => selectAdjacent(-1)}
-              >
-                <span aria-hidden="true">←</span>
-                <span className="sr-only">上一项</span>
-              </button>
-              <button
-                type="button"
-                disabled={filteredItems.length < 2}
-                onClick={() => selectAdjacent(1)}
-              >
-                <span aria-hidden="true">→</span>
-                <span className="sr-only">下一项</span>
-              </button>
-            </nav>
-          )}
-
-          <p className={styles.posterIndex} aria-hidden="true">
-            {String(activePosition).padStart(2, '0')} /{' '}
-            {String(filteredItems.length).padStart(2, '0')}
-          </p>
-
-          {(status === 'unavailable' || status === 'failed') && (
-            <p className={styles.fallbackNotice}>
-              {status === 'failed'
-                ? '3D 初始化失败，当前使用 CSS 立体视图。'
-                : '当前设备使用 CSS 立体视图。'}
-            </p>
-          )}
-
-          <div className={styles.credits}>
-            <p className={styles.coverCredit}>
-              {activeItem.cover.kind === 'licensed' ? (
-                <>
-                  <span>封面来源与署名：</span>
-                  <a
-                    href={activeItem.cover.sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {activeItem.cover.credit}
-                    <span className="sr-only">（在新标签页打开）</span>
-                  </a>
-                  {' · '}
-                  <span>许可：</span>
-                  <a
-                    href={activeItem.cover.licenseUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {activeItem.cover.license}
-                    <span className="sr-only">（在新标签页打开）</span>
-                  </a>
-                </>
-              ) : activeItem.cover.kind === 'remote' ? (
-                <>
-                  <span>封面来源：</span>
-                  <a
-                    href={activeItem.cover.sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {activeItem.cover.credit}
-                    <span className="sr-only">（在新标签页打开）</span>
-                  </a>
-                </>
+          <div
+            className={styles.poster}
+            data-category={activeItem.category}
+            data-testid="recommendation-poster"
+          >
+            <div className={styles.stage}>
+              {status === 'available' && visibleActiveId ? (
+                <RecommendationStage
+                  items={filteredItems}
+                  activeId={visibleActiveId}
+                  compact={compact}
+                  reducedMotion={reducedMotion}
+                  onSelect={selectItem}
+                  onFailure={markFailed}
+                />
               ) : (
-                <>原创排版：{activeItem.cover.credit}</>
+                <RecommendationFallbackStage
+                  items={filteredItems}
+                  activeId={visibleActiveId ?? activeItem.id}
+                  compact={compact}
+                  reducedMotion={reducedMotion}
+                  onSelect={selectItem}
+                />
               )}
-            </p>
-            <a
-              className={styles.externalLink}
-              href={activeItem.externalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`查看 ${activeItem.title} 的外部详情`}
-              aria-describedby={`recommendation-external-hint-${activeItem.id}`}
-            >
-              查看作品详情
-              <span
-                id={`recommendation-external-hint-${activeItem.id}`}
-                className="sr-only"
-              >
-                （在新标签页打开）
-              </span>
-            </a>
-            {mode === 'featured' && (
-              <a className={styles.allLink} href={props.allHref}>
-                查看全部推荐
-              </a>
+            </div>
+
+            <div className={styles.topBar}>
+              <div className={styles.metadata} data-recommendation-metadata="">
+                <p className={styles.categoryLabel}>
+                  {recommendationCategoryConfig[activeItem.category].label}
+                </p>
+                <h2>{activeItem.title}</h2>
+                <dl className={styles.details}>
+                  <div>
+                    <dt>
+                      {
+                        recommendationCategoryConfig[activeItem.category]
+                          .creatorLabel
+                      }
+                    </dt>
+                    <dd>{activeItem.creator}</dd>
+                  </div>
+                  <div>
+                    <dt>年份</dt>
+                    <dd>{activeItem.year}</dd>
+                  </div>
+                </dl>
+              </div>
+
+              {mode === 'catalog' && (
+                <div
+                  className={styles.toolbar}
+                  role="toolbar"
+                  aria-label="筛选推荐"
+                >
+                  {recommendationCategoryValues.map((category) => (
+                    <button
+                      key={category}
+                      type="button"
+                      aria-pressed={filter === category}
+                      onClick={() => selectFilter(category)}
+                    >
+                      {recommendationCategoryConfig[category].label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {mode === 'catalog' && (
+              <nav className={styles.navigation} aria-label="推荐项目导航">
+                <button
+                  type="button"
+                  disabled={filteredItems.length < 2}
+                  onClick={() => selectAdjacent(-1)}
+                >
+                  <span aria-hidden="true">←</span>
+                  <span className="sr-only">上一项</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={filteredItems.length < 2}
+                  onClick={() => selectAdjacent(1)}
+                >
+                  <span aria-hidden="true">→</span>
+                  <span className="sr-only">下一项</span>
+                </button>
+              </nav>
             )}
+
+            <p className={styles.posterIndex} aria-hidden="true">
+              {String(activePosition).padStart(2, '0')} /{' '}
+              {String(filteredItems.length).padStart(2, '0')}
+            </p>
+
+            {(status === 'unavailable' || status === 'failed') && (
+              <p className={styles.fallbackNotice}>
+                {status === 'failed'
+                  ? '3D 初始化失败，当前使用 CSS 立体视图。'
+                  : '当前设备使用 CSS 立体视图。'}
+              </p>
+            )}
+
+            <div className={styles.credits}>
+              <p className={styles.coverCredit}>
+                {activeItem.cover.kind === 'licensed' ? (
+                  <>
+                    <span>封面来源与署名：</span>
+                    <a
+                      href={activeItem.cover.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {activeItem.cover.credit}
+                      <span className="sr-only">（在新标签页打开）</span>
+                    </a>
+                    {' · '}
+                    <span>许可：</span>
+                    <a
+                      href={activeItem.cover.licenseUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {activeItem.cover.license}
+                      <span className="sr-only">（在新标签页打开）</span>
+                    </a>
+                  </>
+                ) : activeItem.cover.kind === 'remote' ? (
+                  <>
+                    <span>封面来源：</span>
+                    <a
+                      href={activeItem.cover.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {activeItem.cover.credit}
+                      <span className="sr-only">（在新标签页打开）</span>
+                    </a>
+                  </>
+                ) : (
+                  <>原创排版：{activeItem.cover.credit}</>
+                )}
+              </p>
+              <a
+                className={styles.externalLink}
+                href={activeItem.externalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`查看 ${activeItem.title} 的外部详情`}
+                aria-describedby={`recommendation-external-hint-${activeItem.id}`}
+              >
+                查看作品详情
+                <span
+                  id={`recommendation-external-hint-${activeItem.id}`}
+                  className="sr-only"
+                >
+                  （在新标签页打开）
+                </span>
+              </a>
+              {mode === 'featured' && (
+                <a className={styles.allLink} href={props.allHref}>
+                  查看全部推荐
+                </a>
+              )}
+            </div>
           </div>
-        </div>
+        </>
       ) : (
         <p className={styles.emptyState}>该分类暂无推荐。</p>
       )}

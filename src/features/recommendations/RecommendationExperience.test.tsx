@@ -104,12 +104,16 @@ afterEach(() => {
 });
 
 describe('RecommendationExperience', () => {
-  it('places the stage and upper-left metadata inside one poster surface', () => {
+  it('keeps content in the poster while placing diffusion on the section background', () => {
     render(<RecommendationExperience items={items} mode="catalog" />);
 
-    expect(screen.getByTestId('recommendation-poster')).toContainElement(
-      screen.getByTestId('recommendation-stage'),
-    );
+    const experience = screen.getByLabelText('推荐浏览');
+    const poster = screen.getByTestId('recommendation-poster');
+    const diffusion = screen.getByTestId('recommendation-diffusion-backdrop');
+
+    expect(poster).toContainElement(screen.getByTestId('recommendation-stage'));
+    expect(diffusion.parentElement).toBe(experience);
+    expect(poster).not.toContainElement(diffusion);
     expect(
       screen.getByRole('heading', { name: 'Music title', level: 2 }),
     ).toBeVisible();
@@ -126,7 +130,9 @@ describe('RecommendationExperience', () => {
   it('defaults the catalog to music without an all filter', () => {
     render(<RecommendationExperience items={items} mode="catalog" />);
 
-    expect(screen.queryByRole('button', { name: '全部' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: '全部' }),
+    ).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: '音乐' })).toHaveAttribute(
       'aria-pressed',
       'true',
@@ -146,6 +152,26 @@ describe('RecommendationExperience', () => {
       'data-active-id',
       'book-item',
     );
+  });
+
+  it('publishes the active category for the shared diffused theme', async () => {
+    const user = userEvent.setup();
+    render(<RecommendationExperience items={items} mode="catalog" />);
+
+    expect(screen.getByTestId('recommendation-poster')).toHaveAttribute(
+      'data-category',
+      'music',
+    );
+
+    await user.click(screen.getByRole('button', { name: '书籍' }));
+
+    expect(screen.getByTestId('recommendation-poster')).toHaveAttribute(
+      'data-category',
+      'book',
+    );
+    expect(
+      screen.getByTestId('recommendation-diffusion-backdrop'),
+    ).toBeInTheDocument();
   });
 
   it('wraps next and previous navigation and updates the hash without scrolling', async () => {
@@ -196,7 +222,9 @@ describe('RecommendationExperience', () => {
     render(<RecommendationExperience items={items} mode="catalog" />);
 
     expect(screen.getByText('当前设备使用 CSS 立体视图。')).toBeVisible();
-    expect(screen.queryByTestId('recommendation-stage')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('recommendation-stage'),
+    ).not.toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: '旋转 Music title' }),
     ).toBeVisible();
@@ -214,7 +242,9 @@ describe('RecommendationExperience', () => {
     expect(
       screen.queryByRole('button', { name: '全部' }),
     ).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: '上一项' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: '上一项' }),
+    ).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: '查看全部推荐' })).toHaveAttribute(
       'href',
       '/Atoms-H.github.io/recommendations/',
@@ -233,7 +263,9 @@ describe('RecommendationExperience', () => {
     render(<RecommendationExperience items={[]} mode="catalog" />);
 
     expect(screen.getByText('推荐正在整理中。')).toBeVisible();
-    expect(screen.queryByTestId('recommendation-stage')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('recommendation-stage'),
+    ).not.toBeInTheDocument();
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
@@ -318,15 +350,17 @@ describe('RecommendationCover', () => {
 
     render(<RecommendationCover item={remoteItem} />);
     const image = screen.getByRole('img', { name: 'Remote title 封面' });
-    expect(image).toHaveAttribute('src', remoteItem.cover.kind === 'remote' ? remoteItem.cover.src : '');
+    expect(image).toHaveAttribute(
+      'src',
+      remoteItem.cover.kind === 'remote' ? remoteItem.cover.src : '',
+    );
 
     fireEvent.error(image);
 
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
-    expect(screen.getByText('Remote title').closest('[data-cover-kind]')).toHaveAttribute(
-      'data-cover-kind',
-      'generated',
-    );
+    expect(
+      screen.getByText('Remote title').closest('[data-cover-kind]'),
+    ).toHaveAttribute('data-cover-kind', 'generated');
     expect(screen.getByText('Artist')).toBeVisible();
     expect(screen.getByText('2026')).toBeVisible();
   });
