@@ -4,7 +4,12 @@ import {
   Lightformer,
   PresentationControls,
 } from '@react-three/drei';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import {
+  Canvas,
+  useFrame,
+  useThree,
+  type ThreeEvent,
+} from '@react-three/fiber';
 import {
   useEffect,
   useLayoutEffect,
@@ -14,7 +19,14 @@ import {
 } from 'react';
 import * as THREE from 'three';
 
+import {
+  finishCanvasDrag,
+  moveCanvasDrag,
+  startCanvasDrag,
+  type CanvasDragState,
+} from './canvas-drag';
 import { recommendationModelRegistry } from './model-registry';
+import { getRecommendationIdAtOffset } from './recommendation-navigation';
 import {
   resolvePresentation,
   type RecommendationItem,
@@ -65,7 +77,7 @@ const isSlotSettled = (group: THREE.Group, slot: StageSlot) => {
   );
 };
 
-const ActivePresentation = ({
+const ObjectPresentation = ({
   children,
   reducedMotion,
   resetKey,
@@ -93,12 +105,17 @@ const ActivePresentation = ({
     }
   });
 
-  const beginDrag = () => {
+  const beginDrag = (event: ThreeEvent<PointerEvent>) => {
+    event.stopPropagation();
     dragging.current = true;
     snapTimeRemaining.current = 0;
     invalidate();
   };
-  const endDrag = () => {
+  const continueDrag = (event: ThreeEvent<PointerEvent>) => {
+    event.stopPropagation();
+  };
+  const endDrag = (event: ThreeEvent<PointerEvent>) => {
+    event.stopPropagation();
     dragging.current = false;
     snapTimeRemaining.current = reducedMotion ? 0 : 1.2;
     invalidate();
@@ -107,6 +124,7 @@ const ActivePresentation = ({
   return (
     <group
       onPointerDown={beginDrag}
+      onPointerMove={continueDrag}
       onPointerUp={endDrag}
       onPointerCancel={endDrag}
       onLostPointerCapture={endDrag}
@@ -215,17 +233,179 @@ const StageModel = ({
 
   return (
     <group ref={groupRef}>
-      {active ? (
-        <ActivePresentation
-          reducedMotion={reducedMotion}
-          resetKey={item.id}
-        >
-          {model}
-        </ActivePresentation>
-      ) : (
-        model
-      )}
+      <ObjectPresentation
+        reducedMotion={reducedMotion}
+        resetKey={item.id}
+      >
+        {model}
+      </ObjectPresentation>
     </group>
+  );
+};
+
+type CanvasTrackProps = {
+  children: ReactNode;
+  items: RecommendationItem[];
+  activeId: string;
+  compact: boolean;
+  reducedMotion: boolean;
+  onSelect: (id: string) => void;
+};
+
+const CanvasTrack = ({
+  children,
+  items,
+  activeId,
+  compact,
+  reducedMotion,
+  onSelect,
+}: CanvasTrackProps) => {
+  const trackRef = useRef<THREE.Group>(null);
+  const dragRef = useRef<CanvasDragState | null>(null);
+  const settlingRef = useRef(false);
+  const { gl, invalidate, size, viewport } = useThree();
+  const pixelsToWorld = viewport.width / Math.max(1, size.width);
+  const spacingWorld = compact ? 2.45 : 2.4;
+  const spacingPx = spacingWorld / pixelsToWorld;
+
+  const setPanning = (panning: boolean) => {
+    gl.domElement.dataset.trackPanning = String(panning);
+  };
+
+  useEffect(() => {
+    setPanning(false);
+
+    return () => {
+      delete gl.domElement.dataset.trackPanning;
+    };
+  }, [gl]);
+
+  useFrame((_, delta) => {
+    const track = trackRef.current;
+    if (!track || dragRef.current || !settlingRef.current) return;
+
+    track.position.x = THREE.MathUtils.damp(
+      track.position.x,
+      0,
+      10,
+      delta,
+    );
+
+    if (Math.abs(track.position.x) < 0.001) {
+      track.position.x = 0;
+      settlingRef.current = false;
+      return;
+    }
+
+    invalidate();
+  });
+
+  const beginPan = (event: ThreeEvent<PointerEvent>) => {
+    event.stopPropagation();
+    gl.domElement.setPointerCapture?.(event.pointerId);
+    dragRef.current = startCanvasDrag(
+      event.clientX,
+      event.clientY,
+      event.timeStamp,
+    );
+    settlingRef.current = false;
+    setPanning(false);
+  };
+
+  const movePan = (event: ThreeEvent<PointerEvent>) => {
+    const drag = dragRef.current;
+    const track = trackRef.current;
+    if (!drag || !track) return;
+
+    event.stopPropagation();
+    const nextDrag = moveCanvasDrag(
+      drag,
+      event.clientX,
+      event.clientY,
+      event.timeStamp,
+    );
+    dragRef.current = nextDrag;
+
+    if (nextDrag.intent === 'scroll-y') {
+      dragRef.current = null;
+      if (gl.domElement.hasPointerCapture?.(event.pointerId)) {
+        gl.domElement.releasePointerCapture?.(event.pointerId);
+      }
+      setPanning(false);
+      return;
+    }
+
+    if (nextDrag.intent === 'pan-x') {
+      track.position.x = nextDrag.offsetX * pixelsToWorld;
+      setPanning(true);
+      invalidate();
+    }
+  };
+
+  const endPan = (event: ThreeEvent<PointerEvent>) => {
+    const drag = dragRef.current;
+    const track = trackRef.current;
+    if (!drag || !track) return;
+
+    event.stopPropagation();
+    const result = finishCanvasDrag(drag, {
+      itemCount: items.length,
+      spacingPx,
+      reducedMotion,
+    });
+    const nextId = getRecommendationIdAtOffset(
+      items,
+      activeId,
+      result.steps,
+    );
+
+    dragRef.current = null;
+    setPanning(false);
+
+    if (result.steps !== 0 && nextId && nextId !== activeId) {
+      onSelect(nextId);
+    }
+
+    if (reducedMotion) {
+      track.position.x = 0;
+      settlingRef.current = false;
+    } else {
+      settlingRef.current = Math.abs(track.position.x) >= 0.001;
+    }
+    invalidate();
+  };
+
+  const cancelPan = (event: ThreeEvent<PointerEvent>) => {
+    if (!dragRef.current) return;
+
+    event.stopPropagation();
+    dragRef.current = null;
+    setPanning(false);
+    settlingRef.current = !reducedMotion;
+
+    if (reducedMotion && trackRef.current) {
+      trackRef.current.position.x = 0;
+    }
+    invalidate();
+  };
+
+  return (
+    <>
+      <mesh
+        position={[0, 0, -2.5]}
+        onLostPointerCapture={cancelPan}
+        onPointerCancel={cancelPan}
+        onPointerDown={beginPan}
+        onPointerMove={movePan}
+        onPointerUp={endPan}
+      >
+        <planeGeometry
+          args={[viewport.width * 1.5, viewport.height * 1.5]}
+        />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
+      <group ref={trackRef}>{children}</group>
+    </>
   );
 };
 
@@ -300,25 +480,33 @@ export const RecommendationStage = ({
         />
       </Environment>
 
-      {stageItems.map(({ id, offset }) => {
-        const item = itemsById.get(id);
-        if (!item) return null;
+      <CanvasTrack
+        items={items}
+        activeId={activeId}
+        compact={compact}
+        reducedMotion={reducedMotion}
+        onSelect={onSelect}
+      >
+        {stageItems.map(({ id, offset }) => {
+          const item = itemsById.get(id);
+          if (!item) return null;
 
-        const slot = compact
-          ? compactSlots[String(offset) as keyof typeof compactSlots]
-          : desktopSlots[String(offset) as keyof typeof desktopSlots];
+          const slot = compact
+            ? compactSlots[String(offset) as keyof typeof compactSlots]
+            : desktopSlots[String(offset) as keyof typeof desktopSlots];
 
-        return (
-          <StageModel
-            key={id}
-            item={item}
-            active={id === activeId}
-            reducedMotion={reducedMotion}
-            slot={slot}
-            onSelect={() => onSelect(id)}
-          />
-        );
-      })}
+          return (
+            <StageModel
+              key={id}
+              item={item}
+              active={id === activeId}
+              reducedMotion={reducedMotion}
+              slot={slot}
+              onSelect={() => onSelect(id)}
+            />
+          );
+        })}
+      </CanvasTrack>
 
       <ContactShadows
         key={activeId}

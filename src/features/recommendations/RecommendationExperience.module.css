@@ -147,6 +147,14 @@
   touch-action: pan-y;
 }
 
+.stage canvas {
+  cursor: grab;
+}
+
+.stage canvas[data-track-panning='true'] {
+  cursor: grabbing;
+}
+
 .cssStage {
   position: relative;
   min-height: 100%;

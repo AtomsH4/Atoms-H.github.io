@@ -255,6 +255,36 @@ test('推荐页在移动端遵循减少动态效果并保持纵向滚动', async
   await expect(page.getByText(/封面来源：/)).toBeVisible();
 });
 
+test('推荐页从 Canvas 空白处拖动会横向切换作品', async ({ page }) => {
+  await page.goto('/Atoms-H.github.io/recommendations/');
+
+  const canvas = page.locator('canvas');
+  await expect(canvas).toHaveAttribute(
+    'data-recommendation-stage-ready',
+    'true',
+  );
+  const heading = page.getByRole('heading', { level: 2 });
+  const before = await heading.textContent();
+  const box = await canvas.boundingBox();
+
+  expect(box).not.toBeNull();
+  if (!box) return;
+
+  await page.mouse.move(
+    box.x + box.width * 0.5,
+    box.y + box.height * 0.14,
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    box.x + box.width * 0.28,
+    box.y + box.height * 0.14,
+    { steps: 8 },
+  );
+  await page.mouse.up();
+
+  await expect(heading).not.toHaveText(before ?? '');
+});
+
 test('推荐页 Canvas 支持真实拖动并保持当前作品', async ({ page }) => {
   await page.goto('/Atoms-H.github.io/recommendations/');
   await page.getByRole('button', { name: '音乐', exact: true }).click();
