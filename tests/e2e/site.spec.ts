@@ -190,6 +190,14 @@ test('推荐页在 WebGL 不可用时保留可拖动 CSS 立体视图', async ({
       value: () => null,
     });
   });
+  await page.route(
+    '**/standardebooks/w-somerset-maugham_the-moon-and-sixpence/**/cover.jpg',
+    (route) =>
+      route.fulfill({
+        contentType: 'image/svg+xml',
+        body: '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="150" viewBox="0 0 100 150"><rect width="100" height="150" fill="#161616"/></svg>',
+      }),
+  );
 
   await page.goto('/Atoms-H.github.io/recommendations/');
 
@@ -252,6 +260,14 @@ test('推荐页在 WebGL 不可用时保留可拖动 CSS 立体视图', async ({
   await page.getByRole('button', { name: '书籍' }).click();
   const bookCover = page.getByRole('img', { name: '月亮与六便士 封面' });
   await expect(bookCover).toBeVisible();
+  await expect
+    .poll(() =>
+      bookCover.evaluate((image: HTMLImageElement) => [
+        image.naturalWidth,
+        image.naturalHeight,
+      ]),
+    )
+    .toEqual([100, 150]);
   await expect
     .poll(() =>
       bookCover.evaluate(
