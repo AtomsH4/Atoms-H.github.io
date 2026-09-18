@@ -14,7 +14,6 @@ const items = ['music', 'book', 'screen'].map((category, index) => ({
   presentation: category === 'book' ? 'book' : 'disc',
   creator: 'Creator',
   year: 2026,
-  summary: 'Summary',
   externalUrl: `https://example.com/${index + 1}`,
   cover: { kind: 'generated', credit: 'AtomsH4' },
 })) as RecommendationItem[];

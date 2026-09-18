@@ -1,5 +1,7 @@
 // @vitest-environment node
 
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { collections } from './content.config';
@@ -42,6 +44,21 @@ describe('projects content schema', () => {
 });
 
 describe('recommendations content schema', () => {
+  it('stores no recommendation summaries or local third-party cover paths', () => {
+    const directory = join(process.cwd(), 'src/data/recommendations');
+    const sources = readdirSync(directory)
+      .filter((name) => name.endsWith('.md'))
+      .map((name) => readFileSync(join(directory, name), 'utf8'));
+
+    expect(sources).toHaveLength(11);
+    expect(sources.every((source) => !/^summary:/m.test(source))).toBe(true);
+    expect(
+      sources.every(
+        (source) => !/src:\s*\/media\/recommendations\//m.test(source),
+      ),
+    ).toBe(true);
+  });
+
   it('accepts a generated cover and applies boolean defaults', () => {
     const result = recommendationSchema.safeParse(validRecommendation);
 

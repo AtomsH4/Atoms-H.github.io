@@ -1,25 +1,25 @@
 # 推荐封面来源审计
 
-公开可见不等于可复用。没有明确自由许可的官方发行页图片、宣传海报与现代封面均不下载或复用，也不使用搜索结果缩略图；这些条目统一采用本站原创排版封面。
+推荐页只远程引用权威来源的作品图，不把第三方位图保存进仓库。公开可访问不等于图片已进入公共领域；远程引用仍应保留来源链接，并接受上游 CDN 变动或下线的风险。页面加载失败时使用本站生成的彩色排版封面，不从搜索结果或其他镜像补图。
 
-| Slug | 结果 | 来源与许可决定 |
-| --- | --- | --- |
-| wo-biao-shi-li-jie | generated | 官方发行页面未提供可复用许可，使用原创排版封面。 |
-| leave-the-door-open | generated | 官方发行页面未提供可复用许可，使用原创排版封面。 |
-| gei-zi-ji-de-qing-shu | generated | 官方发行页面未提供可复用许可，使用原创排版封面。 |
-| back-in-black | licensed | Wikimedia Commons `ACDC Back in Black cover.svg`，PD-textlogo；保留 trademark 提示，只作作品识别。 |
-| the-moon-and-sixpence | generated | 虽有 1919 年公共领域扫描件，但不采用未核实的现代中文版封面，也不以历史扫描件冒充现代中文版，使用原创排版封面。 |
-| flowers-for-algernon | generated | 现代封面无明确自由许可，使用原创排版封面。 |
-| to-live | generated | 现代封面无明确自由许可，使用原创排版封面。 |
-| hospital-playlist | generated | 宣传海报无明确自由许可，使用原创排版封面。 |
-| dear-you | generated | 宣传海报无明确自由许可，使用原创排版封面。 |
-| neon-genesis-evangelion | generated | 宣传海报与家用媒体封面无明确自由许可，使用原创排版封面。 |
-| flipped | generated | 宣传海报无明确自由许可，使用原创排版封面。 |
+| Slug | Provider | 来源页 | CORS 检查 | 引用决定 |
+| --- | --- | --- | --- | --- |
+| `wo-biao-shi-li-jie` | Cover Art Archive | [MusicBrainz release group](https://musicbrainz.org/release-group/695dd59f-d70e-4960-b5fc-e6864eaa2e81) | 支持 | 远程引用发行组封面 |
+| `leave-the-door-open` | Cover Art Archive | [MusicBrainz release group](https://musicbrainz.org/release-group/b2518ad1-3d54-4a8a-badb-959893da24d0) | 支持 | 远程引用发行组封面 |
+| `gei-zi-ji-de-qing-shu` | Cover Art Archive | [MusicBrainz release group](https://musicbrainz.org/release-group/fe9bf6c3-dbe7-3170-baf4-ebe31d2b40d7) | 支持 | 远程引用发行组封面 |
+| `back-in-black` | Cover Art Archive | [MusicBrainz release group](https://musicbrainz.org/release-group/d3bc1a64-7561-3787-b680-0003aa50f8f1) | 支持 | 远程引用发行组封面；删除旧本地 SVG |
+| `the-moon-and-sixpence` | Open Library Covers | [Open Library work](https://openlibrary.org/works/OL505740W) | 支持 | 远程引用封面仓库图片 |
+| `flowers-for-algernon` | Open Library Covers | [Open Library work](https://openlibrary.org/works/OL515754W) | 支持 | 远程引用封面仓库图片 |
+| `to-live` | Open Library Covers | [Open Library work](https://openlibrary.org/works/OL15861449W) | 支持 | 远程引用封面仓库图片 |
+| `hospital-playlist` | Netflix | [Netflix title](https://www.netflix.com/title/81239224) | 支持 | 远程引用官方作品页图像 |
+| `dear-you` | YouTube | [CMC Pictures 官方预告片](https://www.youtube.com/watch?v=kDPgu6Hxgaw) | 支持 | 远程引用官方预告片缩略图 |
+| `neon-genesis-evangelion` | Netflix | [Netflix title](https://www.netflix.com/title/81033445) | 支持 | 远程引用官方作品页图像 |
+| `flipped` | Netflix | [Netflix title](https://www.netflix.com/title/70130442) | 支持 | 远程引用官方作品页图像 |
 
-## Back in Black
+## 使用边界
 
-- 来源页：[File:ACDC Back in Black cover.svg](https://commons.wikimedia.org/wiki/File:ACDC_Back_in_Black_cover.svg)
-- 许可页：[Template:PD-textlogo](https://commons.wikimedia.org/wiki/Template:PD-textlogo)
-- 作者说明：Wikimedia Commons 文件页将原始封面概念归于 Angus Young；本站将矢量文件贡献者记为 Wikimedia Commons SVG 贡献者。
-- 许可说明：该文字标志因仅由简单几何形状或文字组成而以 `PD-textlogo` 标记为公有领域。
-- 商标提示：版权上的公有领域状态不排除商标或其他限制；此图仅用于作品识别，使用者仍须自行确认适用地区的商标权要求。
+- Cover Art Archive 图片可公开访问并由 MusicBrainz 社区维护，但原始封面作品不因此进入公共领域。
+- Open Library 建议公开页面直接使用 Covers API URL，并链接回相应作品页；本页遵循该引用方式。
+- Netflix 与 YouTube 图片来自官方作品页或官方预告片，仅作作品识别的远程引用，并显示来源入口。
+- 仓库不保存这些第三方位图，也不把其公开可见状态描述为授权许可。
+- 上游图片、URL 或 CORS 策略可能变化；页面必须保留生成封面作为可用性降级，而不是自动改用未经审计的镜像。

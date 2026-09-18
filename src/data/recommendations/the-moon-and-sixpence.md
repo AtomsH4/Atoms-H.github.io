@@ -4,11 +4,13 @@ category: book
 creator: "威廉·萨默塞特·毛姆"
 year: 1919
 recommendDate: 2026-09-14
-summary: "在世俗安稳与艺术执念之间，追问一个人愿意为自由付出什么。"
 externalUrl: "https://standardebooks.org/ebooks/w-somerset-maugham/the-moon-and-sixpence"
 featured: false
 draft: false
 cover:
-  kind: generated
-  credit: AtomsH4
+  kind: remote
+  src: "https://covers.openlibrary.org/b/id/314604-L.jpg?default=false"
+  sourceUrl: "https://openlibrary.org/works/OL505740W"
+  provider: open-library
+  credit: "Open Library cover repository"
 ---

@@ -260,7 +260,6 @@ export const RecommendationExperience = (
                 <dd>{activeItem.year}</dd>
               </div>
             </dl>
-            <p className={styles.summary}>{activeItem.summary}</p>
             <p className={styles.coverCredit}>
               {activeItem.cover.kind === 'licensed' ? (
                 <>

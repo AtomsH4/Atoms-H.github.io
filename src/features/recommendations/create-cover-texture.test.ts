@@ -66,7 +66,6 @@ const createItem = (
   presentation: 'book',
   creator: `Creator ${id}`,
   year: 2026,
-  summary: 'Summary',
   externalUrl: 'https://example.com/work',
   cover,
 });
