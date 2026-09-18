@@ -104,6 +104,14 @@ test('推荐页提供分类、首批内容和安全外链', async ({ page }) => 
   await expect(sourceLink).toContainText('在新标签页打开');
   await expect(sourceLink).toHaveAttribute('target', '_blank');
   await expect(sourceLink).toHaveAttribute('rel', /\bnoopener\b.*\bnoreferrer\b/);
+
+  await page.getByRole('button', { name: '书籍' }).click();
+  await expect(
+    page.getByRole('heading', { name: '月亮与六便士', level: 2 }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: /Standard Ebooks contributors/ }),
+  ).toBeVisible();
 });
 
 test('推荐页首屏展示海报舞台和左上信息', async ({ page }) => {
@@ -240,6 +248,18 @@ test('推荐页在 WebGL 不可用时保留可拖动 CSS 立体视图', async ({
   await page.mouse.up();
 
   await expect(heading).not.toHaveText(activeTitle ?? '');
+
+  await page.getByRole('button', { name: '书籍' }).click();
+  const bookCover = page.getByRole('img', { name: '月亮与六便士 封面' });
+  await expect(bookCover).toBeVisible();
+  await expect
+    .poll(() =>
+      bookCover.evaluate(
+        (image: HTMLImageElement) =>
+          Math.abs(image.clientWidth - image.clientHeight),
+      ),
+    )
+    .toBeLessThanOrEqual(1);
 });
 
 test('推荐页在暗色系统偏好下仍保持浅色海报', async ({ page }) => {
