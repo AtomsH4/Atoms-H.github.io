@@ -87,7 +87,7 @@ type RecommendationCover =
       kind: 'remote';
       src: string;
       sourceUrl: string;
-      provider: 'cover-art-archive' | 'open-library' | 'tmdb';
+      provider: 'cover-art-archive' | 'open-library' | 'netflix' | 'youtube';
       credit: string;
     };
 ```
@@ -103,9 +103,9 @@ type RecommendationCover =
 
 - 音乐：MusicBrainz / Cover Art Archive 的 release 或 release-group front image。它提供稳定 API 和缩略图，但官方文档明确要求使用者自行判断艺术作品权利，因此页面必须显示来源，不宣称图片属于公共领域。
 - 书籍：Open Library Covers API。官方指南明确允许公共页面直接使用 `covers.openlibrary.org` 的 `src` URL，并建议链接回 Open Library。
-- 影视与动画：TMDB image CDN。仅用于非商业博客并按其 FAQ 添加 TMDB 来源声明；页面不得暗示 TMDB 认可本站。
+- 影视与动画：优先使用 Netflix 官方作品页的 Open Graph 图片；《给阿嬷的情书》使用官方国际预告片的 YouTube 缩略图。两者都保持作品来源页链接和提供方署名。
 
-Apple iTunes Search API 不作为默认来源，因为其宣传素材使用要求与商店徽章、商店内容推广绑定，不适合当前纯推荐页面。
+Apple iTunes Search API 不作为默认来源，因为其宣传素材使用要求与商店徽章、商店内容推广绑定，不适合当前纯推荐页面。TMDB 也不作为本批内容的默认来源，因为其 API 需要账户密钥和额外品牌署名，而 Netflix / YouTube 已为四项作品提供无需密钥且支持 CORS 的官方素材。
 
 所有远程纹理必须先验证 HTTPS、CORS 和最小尺寸。失败时只对该作品降级为彩色生成封面，不影响 Canvas 或其他作品。
 
@@ -143,7 +143,7 @@ WebGL 不可用或初始化失败时，降级组件只呈现当前项及少量�
 - 远程封面失败：单项使用生成封面，并保留来源链接供用户访问。
 - WebGL 能力检测失败或上下文丢失：切换 CSS 立体舞台，当前选择不丢失。
 - 空分类：显示简短空状态，不挂载舞台。
-- `remote` 封面显示来源提供方；TMDB 相关页面包含其要求的非认可声明。
+- `remote` 封面显示来源提供方和作品来源页。
 - 外部详情、封面来源和许可链接均使用安全的新标签页属性。
 
 ## 测试与验收
@@ -169,5 +169,5 @@ WebGL 不可用或初始化失败时，降级组件只呈现当前项及少量�
 ## 风险与取舍
 
 - 远程封面依赖第三方可用性和 CORS；通过本地生成回退保证可读性，但无法保证第三方永远稳定。
-- Cover Art Archive 与 TMDB 提供展示接口不等于封面原作进入公共领域。本方案通过远程引用、清晰署名和非商业使用降低风险，不声称消除版权责任。
+- Cover Art Archive、Netflix 和 YouTube 提供公开展示接口不等于封面原作进入公共领域。本方案通过远程引用、清晰署名和非商业使用降低风险，不声称消除版权责任。
 - CSS 立体降级增加少量交互代码，但避免无 WebGL 设备退回纯文字列表，直接解决本次体验缺口。
