@@ -34,7 +34,7 @@
 
 .toolbar button:focus-visible,
 .navigation button:focus-visible,
-.fallbackButton:focus-visible,
+.cssObject:focus-visible,
 .allLink:focus-visible,
 .externalLink:focus-visible {
   outline: 2px solid currentColor;
@@ -126,26 +126,145 @@
   touch-action: pan-y;
 }
 
-.fallbackList {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
+.cssStage {
+  position: relative;
+  min-height: clamp(28rem, 68vh, 50rem);
+  perspective: 1100px;
+  touch-action: pan-y;
+}
+
+.cssObject {
+  --rx: 0deg;
+  --ry: 0deg;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  width: min(38vw, 26rem);
   margin: 0;
-  padding: 10rem 0 0;
-  list-style: none;
-}
-
-.fallbackButton {
-  display: block;
-  width: 100%;
   padding: 0;
-  border: 1px solid #0b0b0b;
-  background: #fff;
+  border: 0;
+  background: transparent;
+  box-shadow: 0 1.75rem 3rem rgb(0 0 0 / 20%);
   cursor: pointer;
+  transform: translate3d(-50%, -50%, 0) rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style: preserve-3d;
 }
 
-.fallbackButton[aria-pressed='true'] {
-  box-shadow: 0 0 0 3px #fff, 0 0 0 5px #0b0b0b;
+.cssObject[aria-current='true'] {
+  z-index: 5;
+  cursor: grab;
+}
+
+.cssObject[aria-current='true']:active {
+  cursor: grabbing;
+}
+
+.cssObject[data-dragging='false'] {
+  transition: transform 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cssStage[data-reduced-motion='true'] .cssObject {
+  transition: none;
+}
+
+.cssObject[data-offset='-2'] {
+  transform: translate3d(-155%, -42%, -8rem) rotateX(var(--rx)) rotateY(calc(var(--ry) + 20deg)) rotateZ(-12deg) scale(0.62);
+}
+
+.cssObject[data-offset='-1'] {
+  transform: translate3d(-102%, -48%, -4rem) rotateX(var(--rx)) rotateY(calc(var(--ry) + 12deg)) rotateZ(-6deg) scale(0.8);
+}
+
+.cssObject[data-offset='1'] {
+  transform: translate3d(6%, -44%, -4rem) rotateX(var(--rx)) rotateY(calc(var(--ry) - 12deg)) rotateZ(7deg) scale(0.8);
+}
+
+.cssObject[data-offset='2'] {
+  transform: translate3d(58%, -38%, -8rem) rotateX(var(--rx)) rotateY(calc(var(--ry) - 20deg)) rotateZ(13deg) scale(0.62);
+}
+
+.cssDisc {
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+.cssFace,
+.cssDiscEdge,
+.cssBookPages,
+.cssBookSpine {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transform-style: preserve-3d;
+}
+
+.cssFace {
+  z-index: 2;
+  overflow: hidden;
+  background: #fff;
+  transform: translateZ(0.42rem);
+}
+
+.cssDisc .cssFace,
+.cssDisc .cssFace > * {
+  border-radius: 50%;
+}
+
+.cssDiscEdge {
+  border-radius: 50%;
+  background: #8f9398;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 80%);
+  transform: translateZ(-0.2rem) scale(1.012);
+}
+
+.cssDiscHub {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 3;
+  width: 18%;
+  aspect-ratio: 1;
+  border: 0.7rem solid rgb(210 214 218 / 92%);
+  border-radius: 50%;
+  background: #f7f6f1;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 26%);
+  transform: translate3d(-50%, -50%, 0.56rem);
+}
+
+.cssBook {
+  aspect-ratio: 0.72;
+}
+
+.cssBook .cssFace,
+.cssBookPages {
+  border-radius: 0.16rem 0.42rem 0.42rem 0.16rem;
+}
+
+.cssBook .cssFace > * {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+
+.cssBookPages {
+  inset: 0.4rem -0.34rem 0.4rem 0.35rem;
+  background: repeating-linear-gradient(
+    0deg,
+    #e7e0d5 0,
+    #e7e0d5 1px,
+    #f8f2e8 1px,
+    #f8f2e8 4px
+  );
+  transform: translateZ(-0.5rem);
+}
+
+.cssBookSpine {
+  right: auto;
+  width: 0.78rem;
+  background: #252525;
+  transform: translate3d(-0.38rem, 0, 0) rotateY(90deg);
 }
 
 .generatedCover {
@@ -232,8 +351,15 @@
     margin-top: 2rem;
   }
 
-  .fallbackList {
-    grid-template-columns: 1fr;
-    padding-top: 0;
+  .cssObject {
+    width: min(72vw, 23rem);
+  }
+
+  .cssObject[data-offset='-1'] {
+    transform: translate3d(-136%, -47%, -5rem) rotateY(16deg) scale(0.76);
+  }
+
+  .cssObject[data-offset='1'] {
+    transform: translate3d(37%, -47%, -5rem) rotateY(-16deg) scale(0.76);
   }
 }

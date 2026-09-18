@@ -7,7 +7,7 @@ import {
   type KeyboardEvent,
 } from 'react';
 
-import { RecommendationFallback } from './RecommendationFallback';
+import { RecommendationFallbackStage } from './RecommendationFallbackStage';
 import styles from './RecommendationExperience.module.css';
 import { RecommendationStage } from './RecommendationStage';
 import {
@@ -331,9 +331,11 @@ export const RecommendationExperience = (
                 onFailure={markFailed}
               />
             ) : (
-              <RecommendationFallback
+              <RecommendationFallbackStage
                 items={filteredItems}
-                activeId={visibleActiveId}
+                activeId={visibleActiveId ?? activeItem.id}
+                compact={compact}
+                reducedMotion={reducedMotion}
                 onSelect={selectItem}
               />
             )}

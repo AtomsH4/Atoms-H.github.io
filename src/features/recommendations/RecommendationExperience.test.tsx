@@ -179,7 +179,7 @@ describe('RecommendationExperience', () => {
     expect(screen.getByText('当前设备使用二维推荐视图。')).toBeVisible();
     expect(screen.queryByTestId('recommendation-stage')).not.toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: '选择 Music title' }),
+      screen.getByRole('button', { name: '旋转 Music title' }),
     ).toBeVisible();
   });
 
