@@ -60,7 +60,14 @@ export const getSquareTextureTransform = (
   width: number,
   height: number,
 ): { repeat: [number, number]; offset: [number, number] } | null => {
-  if (width <= 0 || height <= 0) return null;
+  if (
+    !Number.isFinite(width) ||
+    !Number.isFinite(height) ||
+    width <= 0 ||
+    height <= 0
+  ) {
+    return null;
+  }
 
   if (width > height) {
     const repeatX = height / width;

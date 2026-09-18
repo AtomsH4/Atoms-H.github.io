@@ -38,6 +38,17 @@ describe('getSquareTextureTransform', () => {
   it('returns null when either image dimension is non-positive', () => {
     expect(getSquareTextureTransform(0, 1024)).toBeNull();
   });
+
+  it('returns null when either image dimension is non-finite', () => {
+    expect(getSquareTextureTransform(Number.NaN, 1024)).toBeNull();
+    expect(getSquareTextureTransform(1024, Number.NaN)).toBeNull();
+    expect(
+      getSquareTextureTransform(Number.POSITIVE_INFINITY, 1024),
+    ).toBeNull();
+    expect(
+      getSquareTextureTransform(1024, Number.POSITIVE_INFINITY),
+    ).toBeNull();
+  });
 });
 
 describe('createGeneratedCoverDataUrl', () => {
