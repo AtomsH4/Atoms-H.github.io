@@ -273,7 +273,7 @@ export const RecommendationStage = ({
   return (
     <Canvas
       aria-hidden="true"
-      style={{ height: 'clamp(28rem, 68vh, 50rem)' }}
+      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
       dpr={[1, 1.5]}
       frameloop="demand"
       shadows

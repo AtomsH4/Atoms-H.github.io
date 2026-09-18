@@ -192,6 +192,9 @@ export const RecommendationExperience = (
     filteredItems[0] ??
     null;
   const visibleActiveId = activeItem?.id ?? null;
+  const activePosition = activeItem
+    ? filteredItems.findIndex((item) => item.id === activeItem.id) + 1
+    : 0;
 
   useEffect(() => {
     if ((mode === 'catalog' && !hashReady) || !activeItem) {
@@ -220,6 +223,7 @@ export const RecommendationExperience = (
     <section
       className={styles.experience}
       aria-label="推荐浏览"
+      data-mode={mode}
       data-recommendation-experience=""
       data-reduced-motion={String(reducedMotion)}
       onKeyDown={handleKeyDown}
@@ -234,27 +238,29 @@ export const RecommendationExperience = (
         {statusMessage}
       </p>
 
-      {mode === 'catalog' ? (
-        <div className={styles.toolbar} role="toolbar" aria-label="筛选推荐">
-          {recommendationCategoryValues.map((category) => (
-            <button
-              key={category}
-              type="button"
-              aria-pressed={filter === category}
-              onClick={() => selectFilter(category)}
-            >
-              {recommendationCategoryConfig[category].label}
-            </button>
-          ))}
-        </div>
-      ) : (
-        <a className={styles.allLink} href={props.allHref}>
-          查看全部推荐
-        </a>
-      )}
-
       {activeItem ? (
-        <>
+        <div className={styles.poster} data-testid="recommendation-poster">
+          <div className={styles.stage}>
+            {status === 'available' && visibleActiveId ? (
+              <RecommendationStage
+                items={filteredItems}
+                activeId={visibleActiveId}
+                compact={compact}
+                reducedMotion={reducedMotion}
+                onSelect={selectItem}
+                onFailure={markFailed}
+              />
+            ) : (
+              <RecommendationFallbackStage
+                items={filteredItems}
+                activeId={visibleActiveId ?? activeItem.id}
+                compact={compact}
+                reducedMotion={reducedMotion}
+                onSelect={selectItem}
+              />
+            )}
+          </div>
+
           <div className={styles.metadata}>
             <p className={styles.categoryLabel}>
               {recommendationCategoryConfig[activeItem.category].label}
@@ -275,6 +281,62 @@ export const RecommendationExperience = (
                 <dd>{activeItem.year}</dd>
               </div>
             </dl>
+          </div>
+
+          {mode === 'catalog' && (
+            <div
+              className={styles.toolbar}
+              role="toolbar"
+              aria-label="筛选推荐"
+            >
+              {recommendationCategoryValues.map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  aria-pressed={filter === category}
+                  onClick={() => selectFilter(category)}
+                >
+                  {recommendationCategoryConfig[category].label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {mode === 'catalog' && (
+            <nav className={styles.navigation} aria-label="推荐项目导航">
+              <button
+                type="button"
+                disabled={filteredItems.length < 2}
+                onClick={() => selectAdjacent(-1)}
+              >
+                <span aria-hidden="true">←</span>
+                <span className="sr-only">上一项</span>
+              </button>
+              <button
+                type="button"
+                disabled={filteredItems.length < 2}
+                onClick={() => selectAdjacent(1)}
+              >
+                <span aria-hidden="true">→</span>
+                <span className="sr-only">下一项</span>
+              </button>
+            </nav>
+          )}
+
+          <p className={styles.posterIndex} aria-hidden="true">
+            {String(activePosition).padStart(2, '0')} /{' '}
+            {String(filteredItems.length).padStart(2, '0')} · Drag to rotate
+          </p>
+
+          {(status === 'unavailable' || status === 'failed') && (
+            <p className={styles.fallbackNotice}>
+              {status === 'failed'
+                ? '3D 初始化失败，当前使用 CSS 立体视图。'
+                : '当前设备使用 CSS 立体视图。'}
+            </p>
+          )}
+
+          <div className={styles.credits}>
             <p className={styles.coverCredit}>
               {activeItem.cover.kind === 'licensed' ? (
                 <>
@@ -298,6 +360,18 @@ export const RecommendationExperience = (
                     <span className="sr-only">（在新标签页打开）</span>
                   </a>
                 </>
+              ) : activeItem.cover.kind === 'remote' ? (
+                <>
+                  <span>封面来源：</span>
+                  <a
+                    href={activeItem.cover.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {activeItem.cover.credit}
+                    <span className="sr-only">（在新标签页打开）</span>
+                  </a>
+                </>
               ) : (
                 <>原创排版：{activeItem.cover.credit}</>
               )}
@@ -318,58 +392,15 @@ export const RecommendationExperience = (
                 （在新标签页打开）
               </span>
             </a>
-          </div>
-
-          <div className={styles.stage}>
-            {status === 'available' && visibleActiveId ? (
-              <RecommendationStage
-                items={filteredItems}
-                activeId={visibleActiveId}
-                compact={compact}
-                reducedMotion={reducedMotion}
-                onSelect={selectItem}
-                onFailure={markFailed}
-              />
-            ) : (
-              <RecommendationFallbackStage
-                items={filteredItems}
-                activeId={visibleActiveId ?? activeItem.id}
-                compact={compact}
-                reducedMotion={reducedMotion}
-                onSelect={selectItem}
-              />
+            {mode === 'featured' && (
+              <a className={styles.allLink} href={props.allHref}>
+                查看全部推荐
+              </a>
             )}
           </div>
-
-          {(status === 'unavailable' || status === 'failed') && (
-            <p className={styles.fallbackNotice}>
-              {status === 'failed'
-                ? '3D 初始化失败，当前使用二维推荐视图。'
-                : '当前设备使用二维推荐视图。'}
-            </p>
-          )}
-        </>
+        </div>
       ) : (
         <p className={styles.emptyState}>该分类暂无推荐。</p>
-      )}
-
-      {mode === 'catalog' && (
-        <nav className={styles.navigation} aria-label="推荐项目导航">
-          <button
-            type="button"
-            disabled={filteredItems.length < 2}
-            onClick={() => selectAdjacent(-1)}
-          >
-            上一项
-          </button>
-          <button
-            type="button"
-            disabled={filteredItems.length < 2}
-            onClick={() => selectAdjacent(1)}
-          >
-            下一项
-          </button>
-        </nav>
       )}
     </section>
   );

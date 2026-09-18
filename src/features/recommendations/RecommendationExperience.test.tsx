@@ -104,6 +104,23 @@ afterEach(() => {
 });
 
 describe('RecommendationExperience', () => {
+  it('places the stage and upper-left metadata inside one poster surface', () => {
+    render(<RecommendationExperience items={items} mode="catalog" />);
+
+    expect(screen.getByTestId('recommendation-poster')).toContainElement(
+      screen.getByTestId('recommendation-stage'),
+    );
+    expect(
+      screen.getByRole('heading', { name: 'Music title', level: 2 }),
+    ).toBeVisible();
+    expect(screen.getByText('Artist')).toBeVisible();
+    expect(screen.getByText('2026')).toBeVisible();
+    expect(screen.getByLabelText('推荐浏览')).toHaveAttribute(
+      'data-mode',
+      'catalog',
+    );
+  });
+
   it('defaults the catalog to music without an all filter', () => {
     render(<RecommendationExperience items={items} mode="catalog" />);
 
@@ -176,7 +193,7 @@ describe('RecommendationExperience', () => {
 
     render(<RecommendationExperience items={items} mode="catalog" />);
 
-    expect(screen.getByText('当前设备使用二维推荐视图。')).toBeVisible();
+    expect(screen.getByText('当前设备使用 CSS 立体视图。')).toBeVisible();
     expect(screen.queryByTestId('recommendation-stage')).not.toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: '旋转 Music title' }),
@@ -203,6 +220,10 @@ describe('RecommendationExperience', () => {
     expect(screen.getByTestId('recommendation-stage')).toHaveAttribute(
       'data-compact',
       'true',
+    );
+    expect(screen.getByLabelText('推荐浏览')).toHaveAttribute(
+      'data-mode',
+      'featured',
     );
   });
 

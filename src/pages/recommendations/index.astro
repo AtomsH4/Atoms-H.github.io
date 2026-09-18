@@ -16,32 +16,6 @@ const items = entries.map((entry) =>
 ---
 
 <RecommendationLayout title="推荐 | AtomsH4">
-  <header class="recommendation-title">
-    <p>Selected music, books &amp; screens</p>
-    <h1>推荐</h1>
-  </header>
+  <h1 class="sr-only">推荐</h1>
   <RecommendationExperience items={items} mode="catalog" client:load />
 </RecommendationLayout>
-
-<style>
-  .recommendation-title {
-    padding: clamp(1rem, 4vw, 3rem);
-  }
-
-  .recommendation-title p {
-    margin: 0 0 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .recommendation-title h1 {
-    margin: 0;
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: clamp(3rem, 10vw, 7rem);
-    font-weight: 500;
-    letter-spacing: -0.06em;
-    line-height: 0.9;
-  }
-</style>
