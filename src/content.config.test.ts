@@ -112,6 +112,17 @@ describe('recommendations content schema', () => {
         credit: 'Open Library cover repository',
       },
     }).success).toBe(true);
+
+    expect(recommendationSchema.safeParse({
+      ...validRecommendation,
+      cover: {
+        kind: 'remote',
+        src: 'https://raw.githubusercontent.com/standardebooks/w-somerset-maugham_the-moon-and-sixpence/master/images/cover.jpg',
+        sourceUrl: 'https://github.com/standardebooks/w-somerset-maugham_the-moon-and-sixpence',
+        provider: 'standard-ebooks',
+        credit: 'Standard Ebooks contributors',
+      },
+    }).success).toBe(true);
   });
 
   it('rejects the removed summary field and insecure remote images', () => {
