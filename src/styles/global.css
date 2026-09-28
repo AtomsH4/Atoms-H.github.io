@@ -172,6 +172,15 @@ main {
 
 .page-hero:not(.glass-surface) {
   padding-inline: 0;
+  padding-block-end: 0;
+}
+
+.page-hero:not(.glass-surface) > :last-child {
+  margin-block-end: 0;
+}
+
+.page-hero:not(.glass-surface) + * {
+  margin-block-start: clamp(1.5rem, 3vw, 2rem);
 }
 
 .home-hero {
