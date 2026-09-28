@@ -414,13 +414,24 @@ test('推荐页在 WebGL 不可用时保留可拖动 CSS 立体视图', async ({
       ]),
     )
     .toEqual([100, 150]);
-  await expect
-    .poll(() =>
-      bookCover.evaluate((image: HTMLImageElement) =>
-        Math.abs(image.clientWidth - image.clientHeight),
-      ),
-    )
-    .toBeLessThanOrEqual(1);
+  const bookFaceMetrics = await bookCover.evaluate((image) => ({
+    faceHeight: image.parentElement?.clientHeight ?? 0,
+    faceWidth: image.parentElement?.clientWidth ?? 0,
+    imageHeight: image.clientHeight,
+    imageWidth: image.clientWidth,
+  }));
+  expect(bookFaceMetrics.imageWidth).toBe(bookFaceMetrics.faceWidth);
+  expect(bookFaceMetrics.imageHeight).toBe(bookFaceMetrics.faceHeight);
+  expect(
+    Math.abs(
+      bookFaceMetrics.faceWidth / bookFaceMetrics.faceHeight - 3.12 / 4.12,
+    ),
+  ).toBeLessThanOrEqual(0.01);
+  await expect(bookCover).toHaveCSS('object-fit', 'cover');
+  await expect(bookCover.locator('..')).toHaveCSS(
+    'background-color',
+    'rgba(0, 0, 0, 0)',
+  );
 });
 
 test('推荐页在暗色系统偏好下仍保持浅色弥散背景', async ({ page }) => {

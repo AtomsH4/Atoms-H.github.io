@@ -8,7 +8,9 @@ export const BookModel = ({
   active,
   onSelect,
 }: RecommendationModelProps) => {
-  const texture = useRecommendationTexture(item);
+  const coverWidth = 3.12;
+  const coverHeight = 4.12;
+  const texture = useRecommendationTexture(item, coverWidth / coverHeight);
   const coverColor = active ? '#161616' : '#222222';
 
   return (
@@ -28,11 +30,6 @@ export const BookModel = ({
         <meshStandardMaterial color="#eee9dd" roughness={0.82} />
       </RoundedBox>
 
-      <mesh position={[0, 0, 0.32]} castShadow receiveShadow>
-        <boxGeometry args={[3.12, 4.12, 0.08]} />
-        <meshStandardMaterial color={coverColor} roughness={0.46} />
-      </mesh>
-
       <mesh position={[0, 0, -0.32]} castShadow receiveShadow>
         <boxGeometry args={[3.12, 4.12, 0.08]} />
         <meshStandardMaterial color={coverColor} roughness={0.5} />
@@ -44,7 +41,7 @@ export const BookModel = ({
       </mesh>
 
       <mesh position={[0, 0, 0.365]} receiveShadow>
-        <planeGeometry args={[2.94, 2.94]} />
+        <planeGeometry args={[coverWidth, coverHeight]} />
         <meshStandardMaterial
           key={texture?.uuid ?? 'cover-pending'}
           map={texture ?? undefined}

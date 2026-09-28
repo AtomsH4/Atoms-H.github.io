@@ -74,6 +74,25 @@ describe('createGeneratedCoverDataUrl', () => {
     expect(decoded).not.toMatch(/<(?:image|use)\b|\bhref=|url\(/);
   });
 
+  it('creates a portrait generated cover for a book face without cropping text', () => {
+    const bookFaceAspect = 3.12 / 4.12;
+    const result = createGeneratedCoverDataUrl(
+      {
+        id: 'portrait-book',
+        title: 'Portrait title',
+        creator: 'Portrait creator',
+        year: 2026,
+      },
+      bookFaceAspect,
+    );
+    const decoded = decodeSvgDataUrl(result);
+    const expectedHeight = Math.round(1024 / bookFaceAspect);
+
+    expect(decoded).toContain('width="1024"');
+    expect(decoded).toContain(`height="${expectedHeight}"`);
+    expect(decoded).toContain(`viewBox="0 0 1024 ${expectedHeight}"`);
+  });
+
   it('XML-escapes title and creator text so they cannot inject SVG', () => {
     const result = createGeneratedCoverDataUrl({
       id: 'cover-b',
@@ -171,6 +190,37 @@ describe('useRecommendationTexture', () => {
     expect(dispose).toHaveBeenCalledOnce();
   });
 
+  it('crops a portrait texture to the full book-face aspect ratio', () => {
+    const item = createItem('portrait-book', {
+      kind: 'remote',
+      src: 'https://covers.openlibrary.org/b/id/314604-L.jpg?default=false',
+      sourceUrl: 'https://openlibrary.org/works/OL505740W',
+      provider: 'open-library',
+      credit: 'Open Library cover repository',
+    });
+    const bookFaceAspect = 3.12 / 4.12;
+    const { result, unmount } = renderHook(() =>
+      useRecommendationTexture(item, bookFaceAspect),
+    );
+    const request = pendingLoads[0];
+    Object.defineProperty(request.texture, 'image', {
+      configurable: true,
+      value: { width: 100, height: 150 },
+    });
+
+    act(() => request.onLoad?.(request.texture));
+
+    expect(result.current).toBe(request.texture);
+    expect(request.texture.repeat.x).toBe(1);
+    expect(request.texture.repeat.y).toBeCloseTo(100 / 150 / bookFaceAspect);
+    expect(request.texture.offset.x).toBe(0);
+    expect(request.texture.offset.y).toBeCloseTo(
+      (1 - 100 / 150 / bookFaceAspect) / 2,
+    );
+
+    unmount();
+  });
+
   it('falls back from a failed licensed cover without surfacing the error', () => {
     const item = createItem('licensed', {
       kind: 'licensed',
@@ -209,8 +259,9 @@ describe('useRecommendationTexture', () => {
       provider: 'open-library',
       credit: 'Open Library cover repository',
     });
+    const bookFaceAspect = 3.12 / 4.12;
     const { result, unmount } = renderHook(() =>
-      useRecommendationTexture(item),
+      useRecommendationTexture(item, bookFaceAspect),
     );
     const remoteRequest = pendingLoads[0];
 
@@ -220,6 +271,9 @@ describe('useRecommendationTexture', () => {
 
     expect(pendingLoads).toHaveLength(2);
     expect(pendingLoads[1].url).toMatch(/^data:image\/svg\+xml/);
+    expect(decodeSvgDataUrl(pendingLoads[1].url)).toContain(
+      `height="${Math.round(1024 / bookFaceAspect)}"`,
+    );
 
     act(() => pendingLoads[1].onLoad?.(pendingLoads[1].texture));
 
