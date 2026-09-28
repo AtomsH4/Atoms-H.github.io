@@ -132,6 +132,7 @@ a:hover {
 main {
   width: min(var(--content-wide), calc(100% - var(--space-8)));
   margin: var(--space-8) auto;
+  padding-inline: clamp(1rem, 4vw, 3rem);
 }
 
 .site-footer {
