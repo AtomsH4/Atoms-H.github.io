@@ -135,6 +135,11 @@ main {
   padding-inline: clamp(1rem, 4vw, 3rem);
 }
 
+main:has(> .page-hero:not(.glass-surface)) {
+  --page-hero-spacing: clamp(1.5rem, 3vw, 2rem);
+  margin-block-start: var(--page-hero-spacing);
+}
+
 .site-footer {
   margin-bottom: var(--space-6);
   color: var(--color-muted);
@@ -171,8 +176,7 @@ main {
 }
 
 .page-hero:not(.glass-surface) {
-  padding-inline: 0;
-  padding-block-end: 0;
+  padding: 0;
 }
 
 .page-hero:not(.glass-surface) > :last-child {
@@ -180,7 +184,7 @@ main {
 }
 
 .page-hero:not(.glass-surface) + * {
-  margin-block-start: clamp(1.5rem, 3vw, 2rem);
+  margin-block-start: var(--page-hero-spacing);
 }
 
 .home-hero {
