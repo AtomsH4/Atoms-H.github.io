@@ -169,6 +169,10 @@ main {
   padding: clamp(1.5rem, 4vw, 3rem);
 }
 
+.page-hero:not(.glass-surface) {
+  padding-inline: 0;
+}
+
 .home-hero {
   margin-bottom: clamp(2.5rem, 7vw, 5rem);
   background:
