@@ -151,11 +151,15 @@ test('推荐页提供分类、首批内容和安全外链', async ({ page }) => 
 
 test('推荐页首屏展示海报舞台和左上信息', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/Atoms-H.github.io/recommendations/');
+  await page.goto('/Atoms-H.github.io/recommendations/', {
+    waitUntil: 'domcontentloaded',
+  });
 
   const poster = page.getByTestId('recommendation-poster');
   const canvas = page.locator('canvas');
   const metadata = page.locator('[data-recommendation-metadata]');
+  await expect(canvas).toBeVisible();
+  await expect(metadata).toBeVisible();
   const canvasBox = await canvas.boundingBox();
   const metadataBox = await metadata.boundingBox();
 
