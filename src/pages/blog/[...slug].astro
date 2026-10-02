@@ -23,7 +23,33 @@ const { Content } = await render(entry);
     title={entry.data.title}
     description={entry.data.summary}
   />
-  <article class="prose">
+  <article class="prose blog-article">
     <Content />
   </article>
 </BaseLayout>
+
+<style>
+  :global(main:has(> .blog-article)) {
+    min-width: 0;
+  }
+
+  .blog-article {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .prose :global(pre) {
+    max-width: 100%;
+    overflow-x: auto;
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    font-size: 0.875em;
+    line-height: 1.6;
+  }
+
+  .prose :global(img) {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+</style>

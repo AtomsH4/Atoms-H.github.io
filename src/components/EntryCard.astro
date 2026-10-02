@@ -11,6 +11,7 @@ type Props = {
 
 const { title, summary, pubDate, tags, href, kind, repository } = Astro.props;
 const formattedPubDate = new Intl.DateTimeFormat('zh-CN', {
+  timeZone: 'Asia/Shanghai',
   year: 'numeric',
   month: 'long',
   day: 'numeric',
