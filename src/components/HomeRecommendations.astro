@@ -1,0 +1,42 @@
+---
+import RecommendationExperience from '../features/recommendations/RecommendationExperience';
+import type { RecommendationItem } from '../features/recommendations/recommendation-types';
+import { joinBasePath } from '../lib/site-path';
+
+type Props = {
+  items: RecommendationItem[];
+};
+
+const { items } = Astro.props;
+---
+
+<section
+  class="home-recommendations"
+  aria-labelledby="home-recommendations-title"
+>
+  <div class="section-heading">
+    <p>Current rotation</p>
+    <h2 id="home-recommendations-title">近期推荐</h2>
+  </div>
+  <RecommendationExperience
+    items={items}
+    mode="featured"
+    allHref={joinBasePath(import.meta.env.BASE_URL, '/recommendations/')}
+    client:visible
+  />
+</section>
+
+<style>
+  .home-recommendations {
+    margin-top: clamp(2.5rem, 7vw, 5rem);
+    border: 1px solid #090909;
+    color: #090909;
+    background: #fff;
+  }
+
+  .section-heading {
+    margin: 0;
+    padding: clamp(1rem, 3vw, 2rem);
+    border-bottom: 1px solid #090909;
+  }
+</style>

@@ -12,6 +12,7 @@ const items = [
   { label: '博客', pathname: '/blog/' },
   { label: '随笔', pathname: '/notes/' },
   { label: '项目', pathname: '/projects/' },
+  { label: '推荐', pathname: '/recommendations/' },
   { label: '关于', pathname: '/about/' },
 ];
 
