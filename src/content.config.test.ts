@@ -27,6 +27,26 @@ const validRecommendation = {
 };
 
 describe('projects content schema', () => {
+  it.each(['own', 'fork', 'member'])('accepts the %s project role', (kind) => {
+    expect(projectSchema.safeParse({
+      title: 'Project',
+      summary: 'A project summary',
+      pubDate: '2026-08-31',
+      repository: 'https://github.com/CherryHQ/cherry-studio',
+      kind,
+    }).success).toBe(true);
+  });
+
+  it('rejects unknown project roles', () => {
+    expect(projectSchema.safeParse({
+      title: 'Project',
+      summary: 'A project summary',
+      pubDate: '2026-08-31',
+      repository: 'https://github.com/CherryHQ/cherry-studio',
+      kind: 'unknown',
+    }).success).toBe(false);
+  });
+
   it('rejects unknown frontmatter fields', () => {
     const result = projectSchema.safeParse({
       title: 'Project',

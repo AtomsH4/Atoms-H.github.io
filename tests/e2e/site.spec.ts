@@ -32,24 +32,40 @@ test('首页以博客与精选项目为主要入口', async ({ page }) => {
   await expect(
     page.getByRole('heading', { name: '精选项目', exact: true }),
   ).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: /Atoms-H Blog|AtomsH4 Profile/ }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole('heading', { name: 'frontend-tools', exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'CourseSelectionSystem', exact: true }),
+  ).toBeVisible();
 });
 
-test('项目卡通过安全的新标签页仓库链接打开项目', async ({ page }) => {
+test('项目卡展示 Cherry Studio 成员身份并链接官方仓库', async ({ page }) => {
   await page.goto('/Atoms-H.github.io/projects/');
 
   const card = page
     .locator('.entry-card')
-    .filter({ hasText: 'AtomsH4 Profile' });
+    .filter({ has: page.getByRole('heading', { name: 'Cherry Studio', exact: true }) });
   const repositoryLink = card.locator('a.entry-repository');
 
+  await expect(card.locator('.entry-kind')).toHaveText('member');
+  await expect(card).toContainText('作为项目成员参与 Cherry Studio 开源协作');
+  await expect(card).not.toContainText('学习仓库');
+  await expect(card).not.toContainText('fork');
   await expect(repositoryLink).toHaveAttribute(
     'href',
-    'https://github.com/AtomsH4/AtomsH4',
+    'https://github.com/CherryHQ/cherry-studio',
   );
   await expect(repositoryLink).toHaveAttribute('target', '_blank');
   await expect(repositoryLink).toHaveAttribute('rel', /\bnoreferrer\b/);
   await expect(
     card.locator('a[href^="/Atoms-H.github.io/projects/"]'),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole('heading', { name: /Atoms-H Blog|AtomsH4 Profile/ }),
   ).toHaveCount(0);
 });
 

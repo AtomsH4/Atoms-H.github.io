@@ -70,7 +70,7 @@ const collections = {
     loader: glob({ pattern: '**/*.md', base: './src/data/projects' }),
     schema: entrySchema.extend({
       repository: z.string().url(),
-      kind: z.enum(['own', 'fork']),
+      kind: z.enum(['own', 'fork', 'member']),
     }),
   }),
   recommendations: defineCollection({

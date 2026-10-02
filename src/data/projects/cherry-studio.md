@@ -1,15 +1,15 @@
 ---
-title: cherry-studio
-summary: AI productivity studio 相关学习仓库，明确标注为 fork。
+title: Cherry Studio
+summary: 作为项目成员参与 Cherry Studio 开源协作；这是一款支持多模型对话与 AI 助手的跨平台桌面客户端。
 pubDate: 2026-08-31
 tags:
-  - AI productivity studio
-  - 学习仓库
-  - fork
+  - AI
+  - 跨平台桌面应用
+  - 开源协作
 featured: false
 draft: false
-repository: https://github.com/AtomsH4/cherry-studio
-kind: fork
+repository: https://github.com/CherryHQ/cherry-studio
+kind: member
 ---
 
-AI productivity studio 相关学习仓库，明确标注为 fork。
+作为项目成员参与 Cherry Studio 开源协作；这是一款支持多模型对话与 AI 助手的跨平台桌面客户端。
