@@ -23,6 +23,20 @@ draft: false
 
 当时的 `getCurrentNoteContent` 先读取源码编辑器引用，取不到时再读取富文本编辑器引用，最后才回退到页面已有的内容。这里最值得留意的是“取不到”的判断：源码编辑器使用 `!== undefined`，富文本编辑器使用 `??`，而不是把所有假值都当成缺失。[当前编辑内容的读取实现](https://github.com/CherryHQ/cherry-studio/blob/07af3a266c09397da62f81a41ab759dab1be3b1b/src/renderer/pages/notes/NotesPage.tsx#L979-L987)
 
+```tsx
+const getCurrentNoteContent = useCallback(() => {
+  const sourceContent = codeEditorRef.current?.getContent?.()
+  if (sourceContent !== undefined) {
+    return sourceContent
+  }
+
+  const richContent = editorRef.current?.getMarkdown?.()
+  return richContent ?? currentContent
+}, [currentContent])
+```
+
+[源码摘录来源：NotesPage.tsx](https://github.com/CherryHQ/cherry-studio/blob/07af3a266c09397da62f81a41ab759dab1be3b1b/src/renderer/pages/notes/NotesPage.tsx#L979-L987)。这段回调使用页面已有的编辑器引用和 `currentContent`，不是独立的文件读取函数。
+
 例如，用户把笔记全部删空后，编辑器返回的空字符串仍然是有效的当前内容，不能用 `content || oldContent` 悄悄恢复旧文本。不过，这并不意味着功能会导出一份空白 PDF：后续构造打印请求时会检查空内容，提示用户没有可导出的内容，然后结束操作。[请求构造与空内容检查](https://github.com/CherryHQ/cherry-studio/blob/07af3a266c09397da62f81a41ab759dab1be3b1b/src/renderer/pages/notes/HeaderNavbar.tsx#L113-L130)
 
 这让我更愿意把两个问题分开处理：读取阶段忠实保留当前值，操作阶段再判断这个值是否满足导出条件。否则，“回退数据”和“校验输入”混在一起，会掩盖用户真正做过的编辑。
@@ -65,6 +79,32 @@ draft: false
 PDF 导出先询问保存位置。取消保存时返回 `false`，不会创建打印窗口；完成 PDF 生成并写入文件后才返回 `true`。窗口创建之后，无论生成、写入是否成功，都在 `finally` 中关闭。页面也只在收到 `true` 后显示导出成功提示。[PDF 导出流程](https://github.com/CherryHQ/cherry-studio/blob/07af3a266c09397da62f81a41ab759dab1be3b1b/src/main/services/PrintService.ts#L293-L321)
 
 原生打印还有一个异步边界：调用打印 API 并不等于打印回调已经结束。实现把回调包装成 Promise，等待成功、用户取消或失败的结果，再执行 `finally`。用户取消不被当成打印错误，真正的失败则继续抛出。[原生打印与回调清理](https://github.com/CherryHQ/cherry-studio/blob/07af3a266c09397da62f81a41ab759dab1be3b1b/src/main/services/PrintService.ts#L324-L343)
+
+```ts
+async print(payload: PrintableDocumentPayload): Promise<void> {
+  const { windowId, window } = await this.openPrintWindow(payload)
+  const windowManager = application.get('WindowManager')
+
+  try {
+    await new Promise<void>((resolve, reject) => {
+      window.webContents.print({}, (success, failureReason) => {
+        if (success || failureReason === 'Print job canceled') {
+          resolve()
+          return
+        }
+        reject(new Error(failureReason || 'Print job failed'))
+      })
+    })
+  } catch (error) {
+    logger.error('Failed to print printable document', error as Error)
+    throw error
+  } finally {
+    windowManager.close(windowId)
+  }
+}
+```
+
+[源码摘录来源：PrintService.ts](https://github.com/CherryHQ/cherry-studio/blob/07af3a266c09397da62f81a41ab759dab1be3b1b/src/main/services/PrintService.ts#L324-L344)。这是类中的方法：`openPrintWindow` 负责准备失败时的清理；准备成功以后，由这里的 `finally` 结束窗口生命周期。`await` 等待的是打印 API 的回调，不是纸张实际打印完成。
 
 窗口由 WindowManager 管理，并不意味着调用方可以忘记结束这次操作；PrintService 编排关闭，也不意味着它需要接管通用窗口管理。这是我在[用 Skill 梳理 Cherry Studio 的生命周期设计](/Atoms-H.github.io/blog/cherry-studio-lifecycle-skill/)中讨论的“资源归属”和“命令编排”在一个具体功能里的分工，这里不再重复展开生命周期类型。
 

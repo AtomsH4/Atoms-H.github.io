@@ -33,8 +33,22 @@ const { Content } = await render(entry);
     min-width: 0;
   }
 
+  :global(main:has(> .blog-article) > .page-hero) {
+    max-width: var(--content-prose);
+    margin-inline: auto;
+  }
+
+  :global(main:has(> .blog-article) > .page-hero h1) {
+    font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
   .blog-article {
     min-width: 0;
+    max-width: var(--content-prose);
+    margin-inline: auto;
     overflow-wrap: anywhere;
   }
 

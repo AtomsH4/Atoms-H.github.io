@@ -37,6 +37,20 @@ Doctor 前端通过共享缓存读取 `doctor.state`，它是后端诊断状态�
 
 这个实现用 reducer 描述会话转换，用 controller 调用既有 IPC 并处理交互结果，再用派生 view model 组织列表与汇总。三者的职责不同，不是把同一份状态换三个地方保存。
 
+下面是状态读取与投影的源码删节，省略了共享缓存就绪监听、会话初始化和过期计时 effect，保留三者之间的数据依赖：
+
+```tsx
+const cachedDoctorState = useSharedCacheValue('doctor.state')
+const doctorState = cachedDoctorState ?? IDLE_DOCTOR_STATE
+
+const viewModel = useMemo(
+  () => buildDoctorViewModel(doctorState, now),
+  [doctorState, now]
+)
+```
+
+[源码摘录来源：useDoctorController.ts 状态投影](https://github.com/CherryHQ/cherry-studio/blob/b59f007d93e11f35f2f0cd00c1ead27f06a213b4/src/renderer/hooks/doctor/useDoctorController.ts#L59-L87)。`now` 是控制器维护的时间值，用来重新计算报告是否过期；`viewModel` 随后端状态与时间派生，并没有独立维护一份检查报告。缓存就绪前的 `idle` 回退也不代表可以立即运行检查，后文的自动运行逻辑另有就绪判断。
+
 <figure>
   <a href="/Atoms-H.github.io/media/blog/cherry-studio-doctor/state-ownership.svg" aria-label="查看 Doctor 状态归属原图">
     <img src="/Atoms-H.github.io/media/blog/cherry-studio-doctor/state-ownership.svg" width="848" height="1168" loading="lazy" decoding="async" alt="Doctor 状态归属示意：前端 Controller 经 IPC 发出命令，后端通过 doctor.state 发布检查事实，再派生为 ViewModel；前端 Session 单独管理面板、草稿、授权和交互状态，两类数据共同驱动界面。修复返回成功不会由前端直接改写报告，AI 诊断不计入 Doctor 报告统计。" />
@@ -51,6 +65,28 @@ Doctor 前端通过共享缓存读取 `doctor.state`，它是后端诊断状态�
 ## 请求结束不等于检查状态已经改变
 
 点击运行或取消之后，controller 会记录正在进行的界面交互并调用 IPC，随后结束这次交互。检查本身是否运行、取消或完成，仍然由 `doctor.state` 决定。前端没有因为 IPC 调用返回，就把报告乐观改写成自己预期的状态。[运行与取消实现](https://github.com/CherryHQ/cherry-studio/blob/b59f007d93e11f35f2f0cd00c1ead27f06a213b4/src/renderer/hooks/doctor/useDoctorController.ts#L103-L143)
+
+```tsx
+const run = useCallback(
+  async (tier: DoctorRunTier) => {
+    dispatch({
+      type: 'start-interaction',
+      interaction: { kind: 'run', tier }
+    })
+    try {
+      await ipcApi.request('diagnostics.doctor.run', { tier })
+    } catch (error) {
+      logger.error('Failed to run system diagnostics', error as Error)
+      toast.error(t('settings.doctor.messages.run_failed'))
+    } finally {
+      dispatch({ type: 'finish-interaction', kind: 'run' })
+    }
+  },
+  [t]
+)
+```
+
+[源码摘录来源：useDoctorController.ts 运行请求](https://github.com/CherryHQ/cherry-studio/blob/b59f007d93e11f35f2f0cd00c1ead27f06a213b4/src/renderer/hooks/doctor/useDoctorController.ts#L103-L119)。这里的 `dispatch` 作用于前端会话 reducer；`finish-interaction` 只结束这次界面交互，没有设置 `doctorState.status`，也没有把检查项改成成功。
 
 是否允许取消由同一个 `canCancelDoctorRun` 判断，它要求当前状态是 `running`，并不把快速检查排除在外。视图模型使用这个判断，controller 也用它保护取消入口，让按钮展示与操作条件保持一致。[统一的取消条件](https://github.com/CherryHQ/cherry-studio/blob/b59f007d93e11f35f2f0cd00c1ead27f06a213b4/src/renderer/utils/doctor/doctorViewModel.ts#L51-L53)
 
