@@ -11,7 +11,7 @@ for (const width of [390, 1440]) {
   for (const path of articlePaths) {
     test(`文章阅读布局居中且标题克制：${width} ${path}`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
-      await page.goto('/Atoms-H.github.io' + path);
+      await page.goto(path);
       const metrics = await page.evaluate(() => {
         const article = document.querySelector('article.prose')!;
         const hero = document.querySelector('main > .page-hero')!;
@@ -49,7 +49,7 @@ for (const width of [390, 1440]) {
 test('文章排版不改变首页和列表页的标题', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   for (const path of ['/', '/blog/', '/notes/']) {
-    await page.goto('/Atoms-H.github.io' + path);
+    await page.goto(path);
     const fontSize = await page.getByRole('heading', { level: 1 }).evaluate(
       (element) => Number.parseFloat(getComputedStyle(element).fontSize),
     );
@@ -69,7 +69,7 @@ for (const article of [
 ]) {
   test(`架构文章包含可读的代码摘录：${article.slug}`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 900 });
-    await page.goto('/Atoms-H.github.io/blog/' + article.slug + '/');
+    await page.goto('/blog/' + article.slug + '/');
     const blocks = page.locator('article.prose pre');
     await expect(blocks).toHaveCount(2);
     for (const [index, fragment] of article.fragments.entries()) {

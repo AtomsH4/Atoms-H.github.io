@@ -56,8 +56,8 @@ const getCurrentNoteContent = useCallback(() => {
 这里的划分不是“所有逻辑都搬到主进程”。编辑器哪一份内容有效，只有页面最清楚；原生打印 API 和保存对话框则由主进程调用。IPC 传递的是一次操作需要的数据，而不是编辑器组件、页面内部状态或一个预先设计好的通用文档框架。
 
 <figure>
-  <a href="/Atoms-H.github.io/media/blog/cherry-studio-print/flow.svg" aria-label="查看打印流程原图">
-    <img src="/Atoms-H.github.io/media/blog/cherry-studio-print/flow.svg" width="848" height="1152" loading="lazy" decoding="async" alt="笔记打印的职责交接：页面读取当前编辑内容，通过类型化 IPC 交给主进程 PrintService；WindowManager 提供隐藏窗口，PrintService 加载 HTML 并编排打印或 PDF 导出，操作结束后关闭窗口。PDF 保存取消发生在创建窗口之前。" />
+  <a href="/media/blog/cherry-studio-print/flow.svg" aria-label="查看打印流程原图">
+    <img src="/media/blog/cherry-studio-print/flow.svg" width="848" height="1152" loading="lazy" decoding="async" alt="笔记打印的职责交接：页面读取当前编辑内容，通过类型化 IPC 交给主进程 PrintService；WindowManager 提供隐藏窗口，PrintService 加载 HTML 并编排打印或 PDF 导出，操作结束后关闭窗口。PDF 保存取消发生在创建窗口之前。" />
   </a>
   <figcaption>图 1　从当前编辑内容到打印输出的主要职责交接。主进程编排操作，隐藏窗口承载排版；PDF 保存取消时尚未创建窗口，窗口准备失败也需要清理。依据本文固定的合并版本绘制，点击可查看原图。</figcaption>
 </figure>
@@ -106,7 +106,7 @@ async print(payload: PrintableDocumentPayload): Promise<void> {
 
 [源码摘录来源：PrintService.ts](https://github.com/CherryHQ/cherry-studio/blob/07af3a266c09397da62f81a41ab759dab1be3b1b/src/main/services/PrintService.ts#L324-L344)。这是类中的方法：`openPrintWindow` 负责准备失败时的清理；准备成功以后，由这里的 `finally` 结束窗口生命周期。`await` 等待的是打印 API 的回调，不是纸张实际打印完成。
 
-窗口由 WindowManager 管理，并不意味着调用方可以忘记结束这次操作；PrintService 编排关闭，也不意味着它需要接管通用窗口管理。这是我在[用 Skill 梳理 Cherry Studio 的生命周期设计](/Atoms-H.github.io/blog/cherry-studio-lifecycle-skill/)中讨论的“资源归属”和“命令编排”在一个具体功能里的分工，这里不再重复展开生命周期类型。
+窗口由 WindowManager 管理，并不意味着调用方可以忘记结束这次操作；PrintService 编排关闭，也不意味着它需要接管通用窗口管理。这是我在[用 Skill 梳理 Cherry Studio 的生命周期设计](/blog/cherry-studio-lifecycle-skill/)中讨论的“资源归属”和“命令编排”在一个具体功能里的分工，这里不再重复展开生命周期类型。
 
 ## 快捷键响应还需要活动页面上下文
 

@@ -10,7 +10,7 @@ for (const width of [390, 1440]) {
   for (const slug of articles) {
     test(`只读表格适配正文宽度：${width} ${slug}`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
-      await page.goto(`/Atoms-H.github.io/blog/${slug}/`);
+      await page.goto(`/blog/${slug}/`);
       const region = page.locator('article .read-only-table');
       await expect(region).toHaveCount(1);
       await expect(region).toHaveCSS('overflow-x', 'auto');
@@ -34,7 +34,7 @@ for (const width of [390, 1440]) {
 
 test('手机宽度可用方向键滚动表格且保留焦点提示', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 900 });
-  await page.goto('/Atoms-H.github.io/blog/cherry-studio-doctor-state-boundaries/');
+  await page.goto('/blog/cherry-studio-doctor-state-boundaries/');
   const region = page.getByRole('region', { name: '表格 1，可左右滚动' });
   await region.focus();
   await page.keyboard.press('ArrowRight');
@@ -49,7 +49,7 @@ test('禁用 JavaScript 仍可阅读并滚动表格', async ({ browser, baseURL 
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 900 } });
   const page = await context.newPage();
   try {
-    await page.goto(`${baseURL}/Atoms-H.github.io/blog/cherry-studio-lifecycle-skill/`);
+    await page.goto(`${baseURL}/blog/cherry-studio-lifecycle-skill/`);
     const region = page.getByRole('region', { name: '表格 1，可左右滚动' });
     await expect(region).toBeVisible();
     await expect(region.getByRole('table')).toBeVisible();
@@ -64,7 +64,7 @@ test('禁用 JavaScript 仍可阅读并滚动表格', async ({ browser, baseURL 
 
 test('所有博客表格均自动使用组件，包括一篇文章中的多张表', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 900 });
-  await page.goto('/Atoms-H.github.io/blog/');
+  await page.goto('/blog/');
   const paths = await page.locator('.entry-card h2 a').evaluateAll(links =>
     links.map(link => link.getAttribute('href')!),
   );

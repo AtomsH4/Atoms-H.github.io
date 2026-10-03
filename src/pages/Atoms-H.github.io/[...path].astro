@@ -1,0 +1,46 @@
+---
+import { getCollection } from 'astro:content';
+import { noteRedirects } from '../../../config/note-redirects.mjs';
+import { getPublishedEntries } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const routes = ['/', '/about/', '/blog/', '/notes/', '/projects/', '/recommendations/'];
+
+  for (const collection of ['blog', 'notes'] as const) {
+    const entries = getPublishedEntries(await getCollection(collection));
+    routes.push(...entries.map((entry) => `/${collection}/${entry.id}/`));
+  }
+
+  const redirects = new Map(routes.map((route) => [route, route]));
+  for (const [from, to] of Object.entries(noteRedirects)) {
+    redirects.set(from, to);
+  }
+
+  return [...redirects].map(([from, destination]) => ({
+    params: { path: from.slice(1, -1) || undefined },
+    props: { destination },
+  }));
+}
+
+const { destination } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={new URL(destination, Astro.site)} />
+    <title>页面已迁移 | AtomsH4</title>
+    <script is:inline define:vars={{ destination }}>
+      window.location.replace(destination + window.location.search + window.location.hash);
+    </script>
+    <noscript>
+      <meta http-equiv="refresh" content={`0;url=${destination}`} />
+    </noscript>
+  </head>
+  <body>
+    <p>页面已迁移，<a href={destination}>前往新地址</a>。</p>
+  </body>
+</html>

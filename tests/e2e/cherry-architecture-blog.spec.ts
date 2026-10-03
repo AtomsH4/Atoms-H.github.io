@@ -23,10 +23,10 @@ const articles = [
   },
 ];
 const lifecycleTitle = '用 Skill 梳理 Cherry Studio 的生命周期设计';
-const lifecyclePath = '/Atoms-H.github.io/blog/cherry-studio-lifecycle-skill/';
+const lifecyclePath = '/blog/cherry-studio-lifecycle-skill/';
 
 test('架构复盘按 PR 合并时间归档并保持时间倒序', async ({ page }) => {
-  await page.goto('/Atoms-H.github.io/blog/');
+  await page.goto('/blog/');
 
   for (const article of articles) {
     const card = page.locator('.entry-card').filter({
@@ -55,7 +55,7 @@ test('架构复盘按 PR 合并时间归档并保持时间倒序', async ({ page
 for (const article of articles) {
   test(`架构复盘可读并关联来源和生命周期长文：${article.slug}`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    const response = await page.goto(`/Atoms-H.github.io/blog/${article.slug}/`);
+    const response = await page.goto(`/blog/${article.slug}/`);
 
     expect(response?.status()).toBe(200);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(article.title);
@@ -77,10 +77,10 @@ for (const article of articles) {
 
 for (const article of articles) {
   test(`架构配图完整加载且可打开原图：${article.slug}`, async ({ page }) => {
-    const imagePath = `/Atoms-H.github.io/media/blog/${article.diagram}`;
+    const imagePath = `/media/blog/${article.diagram}`;
     for (const width of [390, 1440]) {
       await page.setViewportSize({ width, height: 900 });
-      await page.goto(`/Atoms-H.github.io/blog/${article.slug}/`);
+      await page.goto(`/blog/${article.slug}/`);
       const figure = page.locator('article.prose figure');
       const image = figure.locator('img');
       await expect(figure).toHaveCount(1);
@@ -107,7 +107,7 @@ for (const article of articles) {
 }
 
 test('随笔不重复收录博客中的架构文章', async ({ page }) => {
-  await page.goto('/Atoms-H.github.io/notes/');
+  await page.goto('/notes/');
   await expect(page.getByRole('heading', { name: '随笔', exact: true })).toBeVisible();
   for (const title of [...articles.map((article) => article.title), lifecycleTitle]) {
     await expect(page.getByRole('link', { name: title, exact: true })).toHaveCount(0);
