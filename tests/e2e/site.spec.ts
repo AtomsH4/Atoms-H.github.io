@@ -7,7 +7,7 @@ test.use({
 });
 
 test('随笔展示迁入的题解而非空状态', async ({ page }) => {
-  await page.goto('/Atoms-H.github.io/notes/');
+  await page.goto('/notes/');
   await expect(
     page.getByRole('heading', { name: '随笔', exact: true }),
   ).toBeVisible();
@@ -18,7 +18,7 @@ test('随笔展示迁入的题解而非空状态', async ({ page }) => {
 });
 
 test('首页以博客与精选项目为主要入口', async ({ page }) => {
-  await page.goto('/Atoms-H.github.io/');
+  await page.goto('/');
 
   await expect(
     page.getByRole('link', { name: '博客', exact: true }),
@@ -45,7 +45,7 @@ test('首页以博客与精选项目为主要入口', async ({ page }) => {
 });
 
 test('项目卡展示 Cherry Studio 成员身份并链接官方仓库', async ({ page }) => {
-  await page.goto('/Atoms-H.github.io/projects/');
+  await page.goto('/projects/');
 
   const card = page
     .locator('.entry-card')
@@ -63,7 +63,7 @@ test('项目卡展示 Cherry Studio 成员身份并链接官方仓库', async ({
   await expect(repositoryLink).toHaveAttribute('target', '_blank');
   await expect(repositoryLink).toHaveAttribute('rel', /\bnoreferrer\b/);
   await expect(
-    card.locator('a[href^="/Atoms-H.github.io/projects/"]'),
+    card.locator('a[href^="/projects/"]'),
   ).toHaveCount(0);
   await expect(
     page.getByRole('heading', { name: /Atoms-H Blog|AtomsH4 Profile/ }),
@@ -71,19 +71,19 @@ test('项目卡展示 Cherry Studio 成员身份并链接官方仓库', async ({
 });
 
 test('未知路径显示自定义 404 页面并提供返回首页入口', async ({ page }) => {
-  await page.goto('/Atoms-H.github.io/does-not-exist/');
+  await page.goto('/does-not-exist/');
 
   await expect(
     page.getByRole('heading', { name: '页面未找到', exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole('link', { name: '返回首页', exact: true }),
-  ).toHaveAttribute('href', '/Atoms-H.github.io/');
+  ).toHaveAttribute('href', '/');
 });
 
 test('移动端导航可打开并显示导航链接', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/Atoms-H.github.io/');
+  await page.goto('/');
 
   const navigation = page.getByRole('navigation', {
     name: '主导航',
@@ -106,7 +106,7 @@ test('移动端导航可打开并显示导航链接', async ({ page }) => {
 });
 
 test('推荐页提供分类、首批内容和安全外链', async ({ page }) => {
-  await page.goto('/Atoms-H.github.io/recommendations/');
+  await page.goto('/recommendations/');
 
   await expect(
     page.getByRole('heading', { name: '推荐', exact: true }),
@@ -160,7 +160,7 @@ test('推荐页提供分类、首批内容和安全外链', async ({ page }) => 
 
 test('推荐页首屏展示海报舞台和左上信息', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/Atoms-H.github.io/recommendations/', {
+  await page.goto('/recommendations/', {
     waitUntil: 'domcontentloaded',
   });
 
@@ -187,7 +187,7 @@ test('推荐页首屏展示海报舞台和左上信息', async ({ page }) => {
 
 test('推荐页分类单色弥散背景全局覆盖且首页保持原主题', async ({ page }) => {
   test.setTimeout(60_000);
-  await page.goto('/Atoms-H.github.io/recommendations/');
+  await page.goto('/recommendations/');
 
   const poster = page.getByTestId('recommendation-poster');
   const recommendationBody = page.locator('body');
@@ -286,7 +286,7 @@ test('推荐页分类单色弥散背景全局覆盖且首页保持原主题', as
   );
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/Atoms-H.github.io/');
+  await page.goto('/');
   const homeBody = page.locator('body');
   await expect(homeBody).not.toHaveClass(/home-recommendation-theme/);
   await expect(homeBody).toHaveCSS('background-color', 'rgb(238, 241, 249)');
@@ -305,7 +305,7 @@ test('推荐页分类单色弥散背景全局覆盖且首页保持原主题', as
 });
 
 test('推荐页支持作品深链', async ({ page }) => {
-  await page.goto('/Atoms-H.github.io/recommendations/#flipped');
+  await page.goto('/recommendations/#flipped');
   await expect(page.getByRole('heading', { name: '怦然心动' })).toBeVisible();
   await expect(
     page.getByRole('button', { name: '影视与动画' }),
@@ -313,7 +313,7 @@ test('推荐页支持作品深链', async ({ page }) => {
 });
 
 test('推荐页支持根节点键盘循环和分类首项切换', async ({ page }) => {
-  await page.goto('/Atoms-H.github.io/recommendations/#wo-biao-shi-li-jie');
+  await page.goto('/recommendations/#wo-biao-shi-li-jie');
 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('推荐');
   await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
@@ -355,7 +355,7 @@ test('推荐页在 WebGL 不可用时保留可拖动 CSS 立体视图', async ({
       }),
   );
 
-  await page.goto('/Atoms-H.github.io/recommendations/');
+  await page.goto('/recommendations/');
 
   await expect(
     page.getByText('当前设备使用 CSS 立体视图。', { exact: true }),
@@ -449,7 +449,7 @@ test('推荐页在 WebGL 不可用时保留可拖动 CSS 立体视图', async ({
 
 test('推荐页在暗色系统偏好下仍保持浅色弥散背景', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
-  await page.goto('/Atoms-H.github.io/recommendations/');
+  await page.goto('/recommendations/');
 
   await expect(page.locator('html')).toHaveCSS(
     'background-color',
@@ -465,7 +465,7 @@ test('推荐页在暗色系统偏好下仍保持浅色弥散背景', async ({ pa
 test('推荐页在移动端遵循减少动态效果并保持纵向滚动', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/Atoms-H.github.io/recommendations/');
+  await page.goto('/recommendations/');
 
   const experience = page.locator('[data-recommendation-experience]');
   await expect(experience).toHaveAttribute('data-reduced-motion', 'true');
@@ -526,7 +526,7 @@ test('推荐页在移动端遵循减少动态效果并保持纵向滚动', async
 });
 
 test('推荐页从 Canvas 空白处拖动会横向切换作品', async ({ page }) => {
-  await page.goto('/Atoms-H.github.io/recommendations/');
+  await page.goto('/recommendations/');
 
   const canvas = page.locator('canvas');
   await expect(canvas).toHaveAttribute(
@@ -555,7 +555,7 @@ test('推荐页从 Canvas 空白处拖动会横向切换作品', async ({ page }
 });
 
 test('推荐页 Canvas 支持真实拖动并保持当前作品', async ({ page }) => {
-  await page.goto('/Atoms-H.github.io/recommendations/');
+  await page.goto('/recommendations/');
   await page.getByRole('button', { name: '音乐', exact: true }).click();
 
   const canvas = page.locator('canvas');

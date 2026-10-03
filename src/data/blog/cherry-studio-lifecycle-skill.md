@@ -47,8 +47,8 @@ draft: false
 - **Insufficient evidence**：资源、归属、存续时间、顺序、清理或恢复等关键事实不足以支持前两种结论。
 
 <figure>
-  <a href="/Atoms-H.github.io/media/blog/cherry-studio-lifecycle/decision.svg" aria-label="查看图一原图：Lifecycle 资源归属判定流程">
-    <img src="/Atoms-H.github.io/media/blog/cherry-studio-lifecycle/decision.svg" width="816" height="1104" loading="lazy" decoding="async" alt="Lifecycle 判定流程：关键事实不足时先补充证据；没有跨调用资源或持续性全局副作用时无需新增服务；存在资源时依次比较函数、单例和现有 owner，只有更小方案均无法正确承担归属时才需要独立生命周期服务。" />
+  <a href="/media/blog/cherry-studio-lifecycle/decision.svg" aria-label="查看图一原图：Lifecycle 资源归属判定流程">
+    <img src="/media/blog/cherry-studio-lifecycle/decision.svg" width="816" height="1104" loading="lazy" decoding="async" alt="Lifecycle 判定流程：关键事实不足时先补充证据；没有跨调用资源或持续性全局副作用时无需新增服务；存在资源时依次比较函数、单例和现有 owner，只有更小方案均无法正确承担归属时才需要独立生命周期服务。" />
   </a>
   <figcaption>图 1　是否需要新增 Lifecycle 服务，先由证据和资源归属决定。根据仓库分析规范绘制，点击可查看原图。</figcaption>
 </figure>
@@ -80,8 +80,8 @@ draft: false
 | `Pausable` | 暂停执行并保留同一服务实例及资源，之后继续运行。 |
 
 <figure>
-  <a href="/Atoms-H.github.io/media/blog/cherry-studio-lifecycle/transitions.svg" aria-label="查看图二原图：条件加载、启停与暂停的区别">
-    <img src="/Atoms-H.github.io/media/blog/cherry-studio-lifecycle/transitions.svg" width="808" height="1136" loading="lazy" decoding="async" alt="三种生命周期能力对比：Conditional 在启动时按固定条件纳入或排除整个服务；Activatable 在服务和控制 IPC 常驻时反复获取或释放资源；Pausable 在保留实例和资源的前提下暂停与恢复工作，备份场景还要求停止接收并排空在途任务。" />
+  <a href="/media/blog/cherry-studio-lifecycle/transitions.svg" aria-label="查看图二原图：条件加载、启停与暂停的区别">
+    <img src="/media/blog/cherry-studio-lifecycle/transitions.svg" width="808" height="1136" loading="lazy" decoding="async" alt="三种生命周期能力对比：Conditional 在启动时按固定条件纳入或排除整个服务；Activatable 在服务和控制 IPC 常驻时反复获取或释放资源；Pausable 在保留实例和资源的前提下暂停与恢复工作，备份场景还要求停止接收并排空在途任务。" />
   </a>
   <figcaption>图 2　三种能力分别改变服务的存在、资源的持有和工作的执行。下方的暂停流程采用仓库备份场景的排空约定，点击可查看原图。</figcaption>
 </figure>

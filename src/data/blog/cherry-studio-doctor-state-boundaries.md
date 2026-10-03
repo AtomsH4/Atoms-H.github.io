@@ -52,8 +52,8 @@ const viewModel = useMemo(
 [源码摘录来源：useDoctorController.ts 状态投影](https://github.com/CherryHQ/cherry-studio/blob/b59f007d93e11f35f2f0cd00c1ead27f06a213b4/src/renderer/hooks/doctor/useDoctorController.ts#L59-L87)。`now` 是控制器维护的时间值，用来重新计算报告是否过期；`viewModel` 随后端状态与时间派生，并没有独立维护一份检查报告。缓存就绪前的 `idle` 回退也不代表可以立即运行检查，后文的自动运行逻辑另有就绪判断。
 
 <figure>
-  <a href="/Atoms-H.github.io/media/blog/cherry-studio-doctor/state-ownership.svg" aria-label="查看 Doctor 状态归属原图">
-    <img src="/Atoms-H.github.io/media/blog/cherry-studio-doctor/state-ownership.svg" width="848" height="1168" loading="lazy" decoding="async" alt="Doctor 状态归属示意：前端 Controller 经 IPC 发出命令，后端通过 doctor.state 发布检查事实，再派生为 ViewModel；前端 Session 单独管理面板、草稿、授权和交互状态，两类数据共同驱动界面。修复返回成功不会由前端直接改写报告，AI 诊断不计入 Doctor 报告统计。" />
+  <a href="/media/blog/cherry-studio-doctor/state-ownership.svg" aria-label="查看 Doctor 状态归属原图">
+    <img src="/media/blog/cherry-studio-doctor/state-ownership.svg" width="848" height="1168" loading="lazy" decoding="async" alt="Doctor 状态归属示意：前端 Controller 经 IPC 发出命令，后端通过 doctor.state 发布检查事实，再派生为 ViewModel；前端 Session 单独管理面板、草稿、授权和交互状态，两类数据共同驱动界面。修复返回成功不会由前端直接改写报告，AI 诊断不计入 Doctor 报告统计。" />
   </a>
   <figcaption>图 1　Doctor 的主要状态依赖，而非完整调用时序。控制器读取共享状态并构建视图模型，同时管理会话交互；操作提示与后端检查事实分开更新。依据本文固定的合并版本绘制，点击可查看原图。</figcaption>
 </figure>
@@ -118,4 +118,4 @@ PR 还记录了忙碌上报时保留当前表单或结果、显示错误并允�
 
 同时，弹窗已打开时再次调用 `show()` 应如何处理活动任务、未提交描述和跨窗口归属，是当时明确延后的产品决策。现有 single-flight 行为保持不变；不能把“统一诊断入口”扩大解读成已经完成所有多窗口会话策略。
 
-如果说[用 Skill 梳理 Cherry Studio 的生命周期设计](/Atoms-H.github.io/blog/cherry-studio-lifecycle-skill/)关注的是谁拥有运行时资源，这篇复盘关注的就是谁拥有事实、谁拥有交互。后端报告、前端会话和派生视图各自清楚，界面才能增加功能而不增加互相竞争的状态来源。
+如果说[用 Skill 梳理 Cherry Studio 的生命周期设计](/blog/cherry-studio-lifecycle-skill/)关注的是谁拥有运行时资源，这篇复盘关注的就是谁拥有事实、谁拥有交互。后端报告、前端会话和派生视图各自清楚，界面才能增加功能而不增加互相竞争的状态来源。
