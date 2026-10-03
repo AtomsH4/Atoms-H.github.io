@@ -3,6 +3,7 @@ import { getCollection, render, type CollectionEntry } from 'astro:content';
 import PageHero from '../../components/PageHero.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getPublishedEntries } from '../../lib/content';
+import '../../components/ReadOnlyTable/ReadOnlyTable.css';
 
 export async function getStaticPaths() {
   const entries = getPublishedEntries(await getCollection('blog'));

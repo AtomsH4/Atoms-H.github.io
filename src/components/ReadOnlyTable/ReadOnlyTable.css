@@ -1,0 +1,62 @@
+.read-only-table {
+  max-width: 100%;
+  margin-block: var(--space-6);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+  scrollbar-color: var(--color-muted) var(--color-surface);
+}
+
+.read-only-table > table {
+  width: 100%;
+  min-width: 36rem;
+  margin: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.9375em;
+  line-height: 1.7;
+}
+
+.read-only-table :is(th, td) {
+  padding: var(--space-3) var(--space-4);
+  vertical-align: top;
+}
+
+.read-only-table :is(th, td):not([align]) {
+  text-align: left;
+}
+
+.read-only-table th {
+  color: var(--color-accent-deep);
+  background: var(--color-surface-strong);
+  background: color-mix(in srgb, var(--color-accent) 7%, var(--color-surface-strong));
+  font-weight: 700;
+}
+
+.read-only-table tbody tr > * {
+  border-top: 1px solid color-mix(in srgb, var(--color-muted) 18%, transparent);
+}
+
+.read-only-table tbody tr:nth-child(even) {
+  background: var(--color-surface);
+}
+
+.read-only-table caption {
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-muted);
+  text-align: left;
+}
+
+@media print {
+  .read-only-table {
+    overflow: visible;
+    box-shadow: none;
+  }
+
+  .read-only-table > table {
+    min-width: 0;
+  }
+}

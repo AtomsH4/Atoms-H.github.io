@@ -1,12 +1,17 @@
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
+import { satteri } from '@astrojs/markdown-satteri';
+import { blogTables } from './src/lib/blog-tables';
 
 const base = '/Atoms-H.github.io';
 
 export default defineConfig({
   site: 'https://atomsh4.github.io',
   base,
+  markdown: {
+    processor: satteri({ hastPlugins: [blogTables] }),
+  },
   redirects: {
     '/blog/acwing-book-sorting/': `${base}/notes/acwing-book-sorting/`,
     '/blog/acwing-circuit-repair/': `${base}/notes/acwing-circuit-repair/`,
