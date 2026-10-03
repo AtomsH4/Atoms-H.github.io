@@ -67,10 +67,11 @@ const imports = [
 const normalizeCode = (code: string) =>
   code.split('\n').map((line) => line.trimEnd()).join('\n').trim();
 
-describe('curated Cnblogs imports', () => {
+describe('curated Cnblogs problem-solving notes', () => {
   it.each(imports)('preserves the source, publication time and code of $slug', (entry) => {
-    const path = join(process.cwd(), 'src/data/blog', entry.slug + '.md');
+    const path = join(process.cwd(), 'src/data/notes', entry.slug + '.md');
     expect(existsSync(path), 'The selected article must be present').toBe(true);
+    expect(existsSync(join(process.cwd(), 'src/data/blog', entry.slug + '.md'))).toBe(false);
     const source = readFileSync(path, 'utf8');
     expect(source).toContain('title: ' + JSON.stringify(entry.title));
     expect(source).toContain('pubDate: ' + JSON.stringify(entry.pubDate));
@@ -85,7 +86,7 @@ describe('curated Cnblogs imports', () => {
     expect(source).not.toMatch(/^#{1,6}\s*$/m);
     expect(source).not.toContain('img2020.cnblogs.com');
     for (const match of source.matchAll(/!\[[^\]]+\]\((\.\/images\/[^)]+)\)/g)) {
-      expect(existsSync(join(process.cwd(), 'src/data/blog', match[1]))).toBe(true);
+      expect(existsSync(join(process.cwd(), 'src/data/notes', match[1]))).toBe(true);
     }
   });
 });

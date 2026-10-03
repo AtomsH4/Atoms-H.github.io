@@ -6,14 +6,15 @@ test.use({
   },
 });
 
-test('随笔仍有可读的空状态而非 404', async ({ page }) => {
+test('随笔展示迁入的题解而非空状态', async ({ page }) => {
   await page.goto('/Atoms-H.github.io/notes/');
   await expect(
     page.getByRole('heading', { name: '随笔', exact: true }),
   ).toBeVisible();
   await expect(
     page.getByText('随笔正在整理中。', { exact: true }),
-  ).toBeVisible();
+  ).toHaveCount(0);
+  await expect(page.locator('.entry-card')).toHaveCount(7);
 });
 
 test('首页以博客与精选项目为主要入口', async ({ page }) => {

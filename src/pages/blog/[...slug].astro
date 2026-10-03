@@ -52,4 +52,43 @@ const { Content } = await render(entry);
     max-width: 100%;
     height: auto;
   }
+
+  .prose :global(a) {
+    color: var(--color-accent-deep);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  .prose :global(blockquote) {
+    margin-inline: 0;
+    padding: var(--space-3) var(--space-6);
+    border-inline-start: 3px solid var(--color-accent);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    background: var(--color-surface);
+  }
+
+  .prose :global(figure) {
+    margin: var(--space-8) 0;
+  }
+
+  .prose :global(figure a) {
+    display: block;
+    border-radius: var(--radius-md);
+    cursor: zoom-in;
+  }
+
+  .prose :global(figure img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .prose :global(figcaption) {
+    margin-top: var(--space-3);
+    color: var(--color-muted);
+    font-size: 0.875em;
+    line-height: 1.6;
+  }
 </style>

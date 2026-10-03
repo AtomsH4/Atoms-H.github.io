@@ -52,9 +52,10 @@ const articles = [
   }
 ];
 
-test('博客精选文章按原始发布时间倒序排列', async ({ page }) => {
-  await page.goto('/Atoms-H.github.io/blog/');
-  await expect(page.getByRole('heading', { name: '博客', exact: true })).toBeVisible();
+test('题解笔记按原始发布时间倒序排列', async ({ page }) => {
+  await page.goto('/Atoms-H.github.io/notes/');
+  await expect(page.getByRole('heading', { name: '随笔', exact: true })).toBeVisible();
+  await expect(page.locator('.entry-card')).toHaveCount(articles.length);
   for (const article of articles) {
     const card = page.locator('.entry-card').filter({ has: page.getByRole('link', { name: article.title, exact: true }) });
     await expect(card.locator('time')).toHaveAttribute('datetime', new Date(article.pubDate).toISOString());
@@ -62,18 +63,18 @@ test('博客精选文章按原始发布时间倒序排列', async ({ page }) => 
   const dates = await page.locator('.entry-card time').evaluateAll((elements) => elements.map((element) => Date.parse(element.getAttribute('datetime')!)));
   expect(dates.every((value) => Number.isFinite(value))).toBe(true);
   expect(dates).toEqual([...dates].sort((a, b) => b - a));
-  await expect(page.getByText('博客正在整理中。')).toHaveCount(0);
+  await expect(page.getByText('随笔正在整理中。')).toHaveCount(0);
 });
 
 test('凌晨发布的文章仍显示北京时间的原始日期', async ({ page }) => {
-  await page.goto('/Atoms-H.github.io/blog/');
+  await page.goto('/Atoms-H.github.io/notes/');
   const card = page.locator('.entry-card').filter({ has: page.getByRole('link', { name: 'Acwing - 蒙德里安的梦想', exact: true }) });
   await expect(card.locator('time')).toHaveText('2021年8月2日');
 });
 
 for (const article of articles) {
-  test('博客全文可读且保留来源与时间：' + article.slug, async ({ page }) => {
-    const response = await page.goto('/Atoms-H.github.io/blog/' + article.slug + '/');
+  test('笔记全文可读且保留来源与时间：' + article.slug, async ({ page }) => {
+    const response = await page.goto('/Atoms-H.github.io/notes/' + article.slug + '/');
     expect(response?.status()).toBe(200);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(article.title);
     await expect(page.locator('article.prose time')).toHaveAttribute('datetime', article.pubDate);
@@ -83,10 +84,10 @@ for (const article of articles) {
   });
 }
 
-test('移动端博客图片完整加载且代码不撑破页面', async ({ page }) => {
+test('移动端笔记图片完整加载且代码不撑破页面', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   for (const [slug, imageCount] of [['acwing-book-sorting', 3], ['acwing-maze-path', 1]] as const) {
-    await page.goto('/Atoms-H.github.io/blog/' + slug + '/');
+    await page.goto('/Atoms-H.github.io/notes/' + slug + '/');
     const images = page.locator('article.prose img');
     await expect(images).toHaveCount(imageCount);
     for (const image of await images.all()) {
@@ -100,5 +101,32 @@ test('移动端博客图片完整加载且代码不撑破页面', async ({ page 
     await expect(code).toHaveCSS('overflow-x', 'auto');
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(0);
+  }
+});
+
+test('博客列表不再重复展示题解', async ({ page }) => {
+  await page.goto('/Atoms-H.github.io/blog/');
+  for (const article of articles) {
+    await expect(page.getByRole('link', { name: article.title, exact: true })).toHaveCount(0);
+  }
+});
+
+for (const article of articles) {
+  test('旧博客链接跳转到对应笔记：' + article.slug, async ({ page }) => {
+    await page.goto('/Atoms-H.github.io/blog/' + article.slug + '/');
+    await expect(page).toHaveURL(new RegExp('/Atoms-H\\.github\\.io/notes/' + article.slug + '/$'));
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(article.title);
+  });
+}
+
+test('首页将题解放入最近随笔而非最近博客', async ({ page }) => {
+  await page.goto('/Atoms-H.github.io/');
+  const notes = page.locator('section[aria-labelledby="recent-notes-title"]');
+  const blog = page.locator('section[aria-labelledby="recent-blog-title"]');
+  await expect(notes.locator('.entry-card')).toHaveCount(3);
+  await expect(notes.getByRole('link', { name: articles[0].title, exact: true }))
+    .toHaveAttribute('href', '/Atoms-H.github.io/notes/' + articles[0].slug + '/');
+  for (const article of articles) {
+    await expect(blog.getByRole('link', { name: article.title, exact: true })).toHaveCount(0);
   }
 });
